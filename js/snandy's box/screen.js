@@ -1603,5 +1603,84 @@
             }
         })
     })(Screen);
+
+    // ajax模块
+    (function(S){
+        function createXHR(){
+            if('XMLHttpRequst' in window){
+                createXHR = function(){
+                    return new XMLHttpRequest();
+                }
+            }else{
+                var i= 0,len, fns = [function(){return new ActiveXObject('Microsoft.XMLHTTP')},function(){return new ActiveXObject('Msxml2.XMLHTTP')},
+                function(){return new ActiveXObject('Msxml2.XMLHTTP.3.0')},function(){return new ActiveXObject('Msxml2.XMLHTTP.6.0')}];
+
+                for(len = fns.length;i<len;i++){
+                    try{
+                        fns[i]();
+                        createXHR = fns[i];
+                        break;
+                    }catch (e){
+                    }
+                }
+            }
+            return createXHR();
+        }
+
+        function ajaxInit(ajaxData){
+            var xhr = createXHR(),get_data;
+            ajaxData.responseType = ajaxData.responseType || 'json';
+            if(ajaxData.before)
+                ajaxData.before();
+            xhr.open(xhr.type,xhr.url,true);
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState == 4){
+                    if(xhr.status >= 200 && xhr.status < 300 || xhr.status == 304){
+                        if(ajaxData.responseType == 'json'){
+                            get_data = 'JSON' in window ? JSON.parse(ajaxData.responseText) :
+                                    new Function('return ' + ajaxData.responseText + ";");
+                        }
+                        ajaxData.callback(get_data);
+                        ajaxData.success(get_data);
+                    }else{
+                        ajaxData.failure();
+                    }
+                }
+            }
+
+            if(xhr.type.toLowerCase() == 'get'){
+                xhr.setRequestHeader('X-Request-With','XMLHttpRequest');
+                xhr.send(null);
+            }else if(xhr.type.toLowerCase() == 'post' && ajaxData.data){
+                xhr.setRequestHeader('X-Request-With','XMLHttpRequest');
+                xhr.setRequestHeader('content-type','application/x-www-form-urlencoded');
+                xhr.send(ajaxData.data);
+            }
+
+            return xhr;
+        }
+
+        function getMeth(obj){
+            obj.type = 'get';
+            obj.data = null;
+            return ajaxInit(obj);
+        }
+        function postMeth(obj){
+            obj.type = 'post';
+            return ajaxInit(obj);
+        }
+        Screen.extend({
+            get: function(obj){
+                return getMeth(obj);
+            },
+            post: function(obj){
+                return postMeth(obj);
+            },
+            ajax: function(obj){
+                return ajaxInit(obj);
+            }
+        });
+    })(Screen);
+
     window.S = window.Screen = Screen;
 })(this);
