@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+
+</head>
+<body>
+    <div id="hello-seajs">hello seajs</div>
+    <script src="sea-debug.js" id="seajsnode"></script>
+    <script>
+        seajs.config({
+            alias:{
+                jquery: './jquery-1.11.1'
+            }
+        })
+        seajs.use('application',function(t){console.log(t)});
+    </script>
+</body>
+</html>

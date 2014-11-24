@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="../moon.lib.css">
+    <link rel="stylesheet" type="text/css" href="../colors.css">
+    <style>
+        body,h1,h2,h3,h4,h5,h6{margin: 0; padding: 0;}
+    </style>
+</head>
+<body class="bgeb">
+
+<div class="auto w600 bdc mt10">
+    <div class="bbc mt15 pb10"><span class="b ml15 fw">创建HBASE表:</span></div>
+    <form class="p15 bgwh" method="post" action="">
+        <div class="tc mb20 fix">
+            <label class="fw db pct30 tr l"><span class="red">*</span>TableName:</label>
+            <input type="text" name="name" class="ml10 pct40 h20 l"/>
+        </div>
+        <div class="tc mb20 fix">
+            <label class="fw db pct30 tr l"><span class="red">*</span>Column Family:</label>
+            <input type="text" name="name2" class="ml10 pct40 h20 l"/>
+        </div>
+        <div class="mt15 pb10" style="margin-left: -15px;"><span class="b ml15 fw">输入信息（注：以下输入二选一）</span></div>
+        <div class="tc mb20 fix">
+            <label class="fw db pct30 tr l"><span class="red">*</span>DataBase:</label>
+            <input type="text" name="name3" class="ml10 pct40 h20 l"/>
+        </div>
+        <div class="tc mb20 fix">
+            <label class="fw db pct30 tr l"><span class="red">*</span>OriginTable:</label>
+            <input type="text" name="name4" class="ml10 pct40 h20 l"/>
+        </div>
+        <div class="tc mb20 fix">
+            <label class="fw db pct30 tr l"><span class="red">*</span>HDFS InputFile:</label>
+            <input type="text" name="name5" class="ml10 pct40 h20 l"/>
+        </div>
+        <div class="tc mb20 fix">
+            <label class="fw db pct30 tr l mt20"></label>
+            <div class="cell">
+                <input type="submit" value="提交" class="b btn cl l mt30 pct40 bg-red f18 white p10">
+            </div>
+        </div>
+    </form>
+
+    <div class="mt15 pb10"><span class="b ml15 fw">文件提交:</span></div>
+    <form class=" bgwh p15" action="" id="form">
+        <input type="file" id="file" name="file" style="cursor:pointer;opacity:0;width:150px;height:34px;position: absolute;" multiple>
+        <span class="btn bg-teal ml20">选择上传的文件</span>
+        <input type="submit" id="submit" class="btn bg-blue wh r mr20" value="上传文件" >
+    </form>
+    <iframe name="aa" src="" style="display:none"></iframe>
+</div>
+</body>
+</html>

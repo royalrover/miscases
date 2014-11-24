@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="js/dean-edward-Event.js"></script>
+    <script src="js/snandy's%20box/screen.js"></script>
+    <script src="js/vendor/jquery-1.11.1.js"></script>
+</head>
+<body>
+    <div id='dd' onclick="o()" class='abc' style="position:relative;z-index:55;float:left;width:400px;height:200px;background: red;"><span id="abc" style="z-index:43;" class="abc def"></span></div>
+</body>
+<script>
+    var dd = S('#dd'),obj={
+        say: function(){
+            console.log('hello')
+        },
+        o: [1,2,3,4]
+    };
+    Screen.fn.extend(obj,true);
+    var a={1:32,2:[1,2,3,4]},b={3:234,4:234},c={5:234,6:2342}
+    S.fn.o.push(6)
+    console.log(S('.abc'))
+</script>
+</html>

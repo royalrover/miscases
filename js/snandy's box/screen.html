@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="screen.js"></script>
+    <script src="../vendor/jquery-1.11.1.js"></script>
+</head>
+<body>
+    <div id="abc"></div>
+    <div></div>
+    <script>
+        function log(msg){
+            console && console.log(msg)
+        }
+        var dd = S('div');
+        var dz = $('#abc')
+    //    dd[0].innerText = '<br/><a href="##">click mememe</a>'
+    //    dd[0].textContent = '<br/><a href="##">click mememe</a>'
+    //    dd[0].innerHTML = '<tr>abcd</tr>'
+        var span = document.createElement('span');
+        span.innerHTML = '<a href="#">abcbab</a>'
+        dd.append(span)
+        dd.bind('click',function(){log(123)})
+        dd.bind('mouseover',function(){log('over')})
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link type="text/css" rel="stylesheet" href="css/colors.css">
+    <link type="text/css" rel="stylesheet" href="css/moon.lib.css">
+    <style>
+        .caret {
+            display: inline-block;
+            width: 0;
+            height: 0;
+            margin-left: 2px;
+            vertical-align: middle;
+            border-top: 4px solid;
+            border-right: 4px solid transparent;
+            border-left: 4px solid transparent;
+        }
+
+        a{
+            text-decoration: none;
+            color: #000000;
+        }
+        a:hover{
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="bdd w180 ml10 mt10">
+        <h2 class="bg-lime p5 pl10 b f16"><a href="#home" class="db">会员中心</a></h2>
+        <div>
+            <h3 class="p5 pl10 f14 bbd btd toggleItems"><a href="#menu" class="db">订单中心<div class="mr20 r"><span class="caret"></span></div></a></h3>
+            <ul class="show">
+                <li class="mt10 mb10"><a href="mymenu">我的订单<span class="gray ml10">»</span></a></li>
+                <li class="mt10 mb10"><a href="mycash">我的现金券<span class="gray ml10">»</span></a></li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="p5 pl10 f14 bbd btd toggleItems"><a href="#menu" class="db">互动中心<div class="mr20 r"><span class="caret"></span></div></a></h3>
+            <ul class="show">
+                <li class="mt10 mb10"><a href="mymenu">我的点评<span class="gray ml10">»</span></a></li>
+                <li class="mt10 mb10"><a href="mycash">我的好友<span class="gray ml10">»</span></a></li>
+                <li class="mt10 mb10"><a href="mycash">我关注的餐厅<span class="gray ml10">»</span></a></li>
+                <li class="mt10 mb10"><a href="mycash">我的相册<span class="gray ml10">»</span></a></li>
+            </ul>
+        </div>
+
+        <div>
+            <h3 class="p5 pl10 f14 bbd btd toggleItems"><a href="#menu" class="db">我的婚宴<div class="mr20 r"><span class="caret"></span></div></a></h3>
+            <ul class="show">
+                <li class="mt10 mb10"><a href="mymenu">婚宴社区<span class="gray ml10">»</span></a></li>
+                <li class="mt10 mb10"><a href="mycash">我的邀请
+                    <ul style="padding-left: 1em;">
+                        <li class="mt5 mb5"><a href="mymenu">同学<span class="gray ml10">»</span></a></li>
+                        <li class="mt5 mb5"><a href="mymenu">老板<span class="gray ml10">»</span></a></li>
+                    </ul>
+                </a></li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        if(!window.addEventListener){
+            document.write('<script src="js/ie.js" type="application/javascript"><\/script>')
+        }
+    </script>
+    <script>
+        (function(){
+            var toggleItems = Array.prototype.slice.call(document.querySelectorAll('.toggleItems')),
+                    saveArr = [],flags;
+            if(window.localStorage){
+                if(window.localStorage.getItem('flag')){
+                    flags =  window.localStorage.getItem('flag');
+                    flags.split(',').forEach(function(s,index){
+                        saveArr[index] = Number(s);
+                    });
+                }else{
+                    saveArr = [1,1,1];
+                }
+            }
+            toggleItems.forEach(function(item,index){
+                var s = item.parentNode.querySelector('.show');
+                item.flag = saveArr[index];
+                if(item.flag){
+                    s.style.display = 'auto';
+                }else{
+                    s.style.display = 'none';
+                }
+                item.addEventListener('click',function(){
+                    if(item.flag){
+                        s.style.display = 'none';
+                        item.flag = 0;
+                        saveArr[index] = 0;
+                    }else{
+                        s.style.display = '';
+                        item.flag = 1;
+                        saveArr[index] = 1;
+                    }
+                    if(window.localStorage){
+                        window.localStorage.setItem('flag',saveArr);
+                    }
+                    return false;
+                },false);
+            });
+        })();
+
+    </script>
+</body>
+</html>

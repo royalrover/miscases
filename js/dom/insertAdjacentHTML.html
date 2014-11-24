@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+    <div id="tt"></div>
+    <script>
+        if(typeof HTMLElement !=='undefined' && !HTMLElement.prototype.insertAdjacentHTML){
+            var insertAdjacentElement = function(node,position,el){
+                switch (position.toLowerCase()){
+                    case 'beforebegin':
+                        node.parentNode.insertBefore(el,node);
+                        break;
+                    case 'afterbegin':
+                        node.insertBefore(el,node.firstChild);
+                        break;
+                    case 'beforeend':
+                        node.appendChild(el);
+                        break;
+                    case 'afterend':
+                        if(node.nextSibling){
+                            node.parentNode.insertBefore(el,node.nextSibling);
+                        }else{
+                            node.parentNode.appendChild(el);
+                        }
+                        break;
+                }
+            };
+            HTMLElement.prototype.insertAdjacentHTML = function(position,html){
+                var range = document.createRange(),frag,
+                        parent;
+                range.setStart(document.body);
+                frag = range.createContextualFragment(html);
+                if(this.nodeType == 3 || this.nodeType == 8){
+                    parent = this.parentNode;
+                    insertAdjacentElement(parent,position,frag);
+                }else{
+                    insertAdjacentElement(this,position,frag);
+                }
+            }
+        }
+
+        var insertAdjacentElement = function(node,position,el){
+            switch (position.toLowerCase()){
+                case 'beforebegin':
+                    node.parentNode.insertBefore(el,node);
+                    break;
+                case 'afterbegin':
+                    node.insertBefore(el,node.firstChild);
+                    break;
+                case 'beforeend':
+                    node.appendChild(el);
+                    break;
+                case 'afterend':
+                    if(node.nextSibling){
+                        node.parentNode.insertBefore(el,node.nextSibling);
+                    }else{
+                        node.parentNode.appendChild(el);
+                    }
+                    break;
+            }
+        };
+        var insertAdjacentHTML = function(node,position,html){
+            var range = document.createRange(),frag,
+                    parent;
+            range.selectNodeContents(document.body);
+            frag = range.createContextualFragment(html);
+            if(node.nodeType == 3 || node.nodeType == 8){
+                parent = node.parentNode;
+                insertAdjacentElement(parent,position,frag);
+            }else{
+                insertAdjacentElement(node,position,frag);
+            }
+        };
+
+        var tt = document.getElementById('tt');
+        insertAdjacentHTML(tt,'afterbegin','<span style="color:red;line-height: 20px;">abcdefg</span>')
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        html,body{margin: 0;padding: 0;overflow: hidden;}
+        #maskLayer{position: absolute;z-index: 1000;}
+        #presentLayer{position: absolute;z-index: 1500;border: 10px solid #e3e3e3;background: url(img/preload.gif) center center no-repeat;}
+    </style>
+</head>
+<body>
+    <img id="test" src="http://image.zhangxinxu.com/image/study/s/mm10.jpg" width="200" height="200">
+    <script>
+        document.querySelector('#test').addEventListener('click',function(){
+            var img = '<img src="http://image.zhangxinxu.com/image/study/s/mm10.jpg" width="640" height="466">'
+            var clk = "<object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' width='550' height='400'><param name='movie' value='img/as3_clock_2.swf' /><param name='quality' value='high' /><param name='wmode' value='opaque' /><embed height='400' width='550'  src='img/as3_clock_2.swf' type='application/x-shockwave-flash'></embed></object>";
+            var con = '3s后即将关闭';
+            Popup.u.show(clk,0,0,0,1);
+        },false)
+    </script>
+    <script>
+        (function(window){
+            function get(id){
+                return document.getElementById(id);
+            }
+            if(!window.Popup) var Popup = {};
+            window.Popup = Popup;
+            Popup.u = function(){
+                var maskLayer,presentLayer,contentLayer,
+                        scontent,sisAjax,swidth,sheight,sauto;
+                var f = false
+                return {
+                    /**
+                     * @param content
+                     * @param isAjax
+                     * @param width
+                     * @param height
+                     * @param auto  自适应宽度高度
+                     * @param timeout
+                     */
+                    show: function(content,isAjax,width,height,auto,timeout){
+                        var that = this;
+                        if(!maskLayer){
+                            maskLayer = document.createElement('div');
+                            maskLayer.id = 'maskLayer'
+                            presentLayer = document.createElement('div');
+                            presentLayer.id = 'presentLayer';
+                            presentLayer.style.position = 'absolute';
+                            contentLayer = document.createElement('div');
+                            contentLayer.id = 'contentLayer';
+                            contentLayer.style.display = 'none';
+                            maskLayer.style.position = 'absolute';
+                            maskLayer.style.top = 0;
+                            document.body.appendChild(maskLayer);
+                            document.body.appendChild(presentLayer);
+                            presentLayer.appendChild(contentLayer);
+
+                            maskLayer.onclick = this.hide;
+                            window.onresize = this.resize;
+                        }
+                        scontent = content;
+                        sisAjax = isAjax;
+                        swidth = width;
+                        sheight = height;
+                        sauto = auto;
+
+                        this.spread();
+                        this.preshow();
+                        this.filter(maskLayer,80,3,1);
+                        if (timeout)
+                        setTimeout(that.hide,timeout * 1000);
+                    },
+                    load: function(content,isAjax,width,height,auto){
+                        var that = this;
+                        if(isAjax){
+                            var xhr = that.ajax();
+                            xhr.onreadystatechange = function(){
+                                if(xhr.readyState == 4){
+                                    if(xhr.status >= 200 && xhr.status < 300 || xhr.status == 304){
+                                        that.process(xhr.responseText,width,height,auto);
+                                    }
+                                }
+                            };
+                            xhr.open('GET',content,true);
+                            xhr.send(null);
+                        }else{
+                            that.process(content,width,height,auto);
+                        }
+                    },
+                    hide: function(){
+                        Popup.u.filter(presentLayer,0,5,-1);
+                    },
+                    process: function(content,width,height,auto){
+                        if(auto){
+                            if(!width && !height){
+                                var preW = parseInt(presentLayer.style.width),
+                                        preH = parseInt(presentLayer.style.height);
+                                presentLayer.style.width = '';
+                                presentLayer.style.height = '';
+                                contentLayer.style.width = '';
+                                contentLayer.style.height = '';
+                                contentLayer.style.display = '';
+                                presentLayer.style.backgroundImage = 'none';
+                                contentLayer.innerHTML = content;
+
+                            }else{
+                                presentLayer.style.width = width;
+                                presentLayer.style.height = height;
+                            }
+                            this.layout(preW,preH,width,height);
+                        }
+                    },
+                    ajax: function(){
+                        var that = this,fns;
+                        fns = [function(){return new window.XMLHttpRequest();},function(){return new ActiveXObject('Msxml2.XMLHTTP')},
+                        function(){return new ActiveXObject('Microsoft.XMLHTTP')}];
+                            for(var i,len = fns.length;i<len;i++){
+                                try{
+                                    new fns[i]();
+                                    that.ajax = fns[i];
+                                    break;
+                                }catch (e){}
+                            }
+                        return ajax();
+                    },
+                    resize: function(){
+                        Popup.u.position();
+                        Popup.u.spread();
+                    },
+                    // presentLayer 初始显示
+                    preshow: function(bgimg){
+                        var clientHeight = Popup.p.clientHeight(),clientWidth = Popup.p.clientWidth(),
+                                setTop,setLeft;
+                        bgimg = bgimg?bgimg:'';
+                        presentLayer.style.display = 'none';
+                        presentLayer.style.backgroundColor = '#fff';
+                        presentLayer.style.backgroundImage = bgimg;
+                        presentLayer.style.width = '100px';
+                        presentLayer.style.height = '100px';
+                        setTop = (clientHeight - 100) / 2;
+                        setLeft = (clientWidth - 100) /2;
+                        setTop = setTop < 20 ? 20 : setTop;
+                        presentLayer.style.left = setLeft + 'px';
+                        presentLayer.style.top = setTop + 'px';
+                        presentLayer.style.display = '';
+                        return;
+                    },
+                    /**
+                     * @param bgimg
+                     * 遮盖层展开，设置height width
+                    **/
+                    spread: function(bgimg){
+                        bgimg = bgimg?bgimg:'';
+                        maskLayer.style.backgroundColor = '#303030';
+                        maskLayer.style.backgroundImage = bgimg;
+                        maskLayer.style.width = Popup.p.pageWidth() + 'px';
+                        maskLayer.style.height = Popup.p.pageHeight() + 'px';
+                        return;
+                    },
+                    // 定位 presentLayer
+                    position: function(){
+                        var clientHeight = Popup.p.clientHeight(),
+                                clientWidth = Popup.p.clientWidth(),
+                                boxW,boxH,setLeft,setTop;
+                        boxH = presentLayer.offsetHeight;
+                        boxW = presentLayer.offsetWidth;
+                        setTop = Math.abs(clientHeight - boxH) / 2;  console.log(setTop)
+                        setLeft = Math.abs(clientWidth - boxW) /2;
+                        setTop = setTop < 20 ? 20 : setTop;
+                        presentLayer.style.left = setLeft + 'px';
+                        presentLayer.style.top = setTop + 'px';
+                        return ;
+                    },
+                    layout: function(preW,preH,width,height){  // 设定presentLayer 和 contentLayer的位置关系
+                        var padding,margin,
+                                finW,finH,
+                                that = this,
+                                factorW,factorH,
+                                curW = preW,curH = preH,
+                                timeid;
+                        /*console.log('presentLayer:'+presentLayer.offsetWidth+" "+presentLayer.offsetHeight)
+                        console.log('contentLayer:'+contentLayer.offsetWidth+" "+contentLayer.offsetHeight)
+                        */
+                        if(!width && !height){
+                            finW = contentLayer.offsetWidth;
+                            finH = contentLayer.offsetHeight;
+                        }else{
+                            finW = width;
+                            finH = height;
+                        }
+
+                        factorW = finW > preW ? 1 : -1;
+                        factorH = finH > preH ? 1 : -1;
+                        presentLayer.style.paddingBottom = '10px';
+                        presentLayer.style.paddingTop = '10px';
+                        presentLayer.style.paddingLeft = '10px';
+                        presentLayer.style.paddingRight = '10px';
+                        contentLayer.style.display = '';
+
+                        function recurse(){
+                            if(curW == finW){
+                                if(curH == finH){
+                                    clearInterval(timeid);
+                                    that.position();
+                                    contentLayer.style.display = '';
+                                    return;
+                                }
+                            }else{
+                                curW += Math.ceil(Math.abs(finW - curW) / 3) * factorW;
+                                presentLayer.style.width = curW + 'px';
+                            }
+
+                            if(curH == finH){
+                                if(curW == finW){
+                                    clearInterval(timeid);
+                                    that.position();
+                                    contentLayer.style.display = '';
+                                    return;
+                                }
+                            }else{
+                                curH += Math.ceil(Math.abs(finH - curH) / 3) * factorH;
+                                presentLayer.style.height = curH + 'px';
+                            }
+                            that.position();
+                        }
+                        timeid = setInterval(recurse,20);
+                    },
+                    /**
+                     * @param el
+                     * @param opacity
+                     * @param factor  每次迭代所增减的因子
+                     * @param iod 增减性，取值为正负1.  -1 则意味着透明度逐渐为零
+                     */
+                    filter: function(el,opacity,factor,iod){
+                        if(el.uuid){
+                            clearInterval(el.uuid);
+                        }
+
+                        var curVal = 0,that = this;
+                        if(iod == -1){
+                            curVal = el.style.opacity * 100;
+                        }else{
+                            el.style.opacity = 0;
+                            el.style.filter = 'alpha(opacity=0)';
+                        }
+
+                        function recurse(){
+                            if(curVal == opacity){
+                                clearInterval(el.uuid);
+                                el.uuid = null;
+                                if(iod == 1){ // 先显示maskLayer，然后显示presentLayer
+                                    el.style.display = '';
+                                    el === maskLayer ? that.filter(presentLayer,100,5,1) : that.load(scontent,sisAjax,swidth,sheight,sauto);
+                                }else{  // 先隐藏presentLayer
+                                    el.style.display = 'none';
+                                    if(el === presentLayer){
+                                        el.style.width = el.style.height = 0;
+                                    }
+                                    el === presentLayer ? that.filter(maskLayer,0,3,-1):contentLayer.innerHTML = '';
+                                }
+                            }else{
+                                curVal += Math.ceil(Math.abs(opacity - curVal) / factor) * iod;
+                                el.style.opacity = curVal / 100;
+                                el.style.filter = 'alpha(opacity=' + curVal + ')';
+                            }
+                        }
+                        el.uuid = setInterval(recurse,20);
+                    }
+                };
+
+            }();
+
+            Popup.p = function(){
+                var h = document.documentElement,b = document.body;
+                return {
+                    pageWidth: function(){return Math.max(Math.max(h.scrollWidth, b.scrollWidth),Math.max(h.offsetWidth, b.offsetWidth))},
+                    pageHeight: function(){return Math.max(Math.max(h.scrollHeight, b.scrollHeight),Math.max(h.offsetHeight, b.offsetHeight))},
+                    clientWidth: function(){return window.innerWidth || h.clientWidth || b.clientWidth},
+                    clientHeight: function(){return window.innerHeight || h.clientHeight || b.clientHeight}
+                }
+            }();
+        })(window);
+
+    </script>
+</body>
+</html>

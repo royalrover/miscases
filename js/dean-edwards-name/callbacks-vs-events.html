@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="../vendor/jquery-1.11.1.js"></script>
+    <script src="../snandy's%20box/screen.js"></script>
+</head>
+<body>
+
+    <script>
+        function log(msg){
+            console.log(msg)
+        }
+        $(function(){
+            function a(){
+                log(1);
+                n_exits++;
+            }
+            function b(){
+                log(2);
+            }
+            S(document).bind('click',a);
+            S(document).bind('click',b);
+    //        S(document).unbind('click',a);
+    //        S(document).unbind('click',b);
+            log(S._data((document)))
+        });
+
+        var currentHandler;
+
+        if (document.addEventListener) {
+            document.addEventListener("fakeEvents", function() {
+                // execute the callback
+                currentHandler();
+            }, false);
+
+            var dispatchFakeEvent = function() {
+                var fakeEvent = document.createEvent("UIEvents");
+                fakeEvent.initEvent("fakeEvents", false, false);
+                document.dispatchEvent(fakeEvent);
+            };
+        } else { // MSIE
+            document.documentElement.fakeEvents = 0; // an expando property
+
+            document.documentElement.attachEvent("onpropertychange", function(event) {
+                if (event.propertyName == "fakeEvents") {
+                    // execute the callback
+                    currentHandler();
+                }
+            });
+
+            dispatchFakeEvent = function(handler) {
+                // fire the propertychange event
+                document.documentElement.fakeEvents++;
+            };
+        }
+
+        var onLoadHandlers = [];
+        function addOnLoad(handler) {
+            onLoadHandlers.push(handler);
+        };
+
+        window.onload = function() {
+            for (var i = 0; i < onLoadHandlers.length; i++) {
+                currentHandler = onLoadHandlers[i];
+                dispatchFakeEvent();
+            }
+        };
+
+        addOnLoad(function() {
+                    console.log("Init: 1");
+                    DOES_NOT_EXIST++; // this will throw an error
+                });
+
+        addOnLoad(function() {
+            console.log("Init: 2");
+        });
+    </script>
+</body>
+</html>

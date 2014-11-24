@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <div id="dragme" style="width: 200px;height: 200px;background: orange;" draggable="true">可拖拽区域</div>
+    <div id="dropme" style="width: 200px;height: 200px;background: green;">拖拽文件到此处</div>
+    <input type="file" id="file">
+    <img src="" width="200" height="200" id="preview">
+    <script>
+        (function(){
+            var e = {
+                data: 'test',
+                reason: 'history api'
+            };
+            window.addEventListener('popstate',function(e){
+                console.log(JSON.stringify(e.state)+" "+location.href)
+            },false)
+            window.addEventListener('click',function(){
+                history.pushState(e,'history api','?tag=1');
+                history.pushState(e,'history api','?tag=2');
+                history.replaceState(e,'history api','?tag=3');
+            },false)
+
+            document.querySelector('#dragme').addEventListener('dragstart',function(e){
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.dropEffect = 'move';
+                e.dataTransfer.setData('text/plain',this.innerText);
+            },false);
+
+            //如果只想触发drop事件，则需禁止dragenter和dragover默认行为
+            var dropme = document.querySelector('#dropme');
+            dropme.addEventListener('dragenter,dragover',function(e){
+                e.dataTransfer.dropEffect = 'copy';
+                e.stopPropagation();
+                e.preventDefault();
+                return;
+            },false);
+            dropme.addEventListener('drop', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                var dt = e.dataTransfer,files;
+                files = dt.files;
+                for(var i= 0,len=files.length;i<len;i++){
+                    console.log(files[i].name);
+                }
+
+            },false);
+
+
+            // 文件缩略图显示
+            var preview = document.querySelector('#preview');
+            var reader = new FileReader();
+            reader.onload = function(e){
+                preview.src = e.target.result;
+            }
+            var fileInput = document.querySelector('#file');
+            fileInput.addEventListener('change',function(e){
+                var files = e.target.files;
+                for(var i= 0,len=files.length;i<len;i++){
+                    reader.readAsDataURL(files[i]);
+                }
+            },false)
+
+
+            document.body.addEventListener('dragover,dragstart',function(e){
+                e.dataTransfer.dropEffect = 'none';
+                e.dataTransfer.effectAllowed = 'none'
+                e.stopPropagation();
+                e.preventDefault();
+                return false;
+            },false)
+        })();
+
+        var a =2;
+        (function(){
+            var a =3;
+            (function () {
+                var a =4;
+                Function('console.log(a);var b =45;console.log(b)')();
+            })()
+
+        })()
+    </script>
+</body>
+</html>

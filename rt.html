@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>  
+<html>  
+<head>  
+<meta charset="utf-8" />
+<title>openflow configure page</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/rt.css">
+<style>
+	body{
+		margin:auto;padding:0 0;height:100%;
+	}
+</style>
+<script>
+		function bold(){
+		console.log(document.getSelection());
+		document.execCommand("bold",false,null);
+	}
+</script>
+</head>
+<body> 
+	<div class="wrap" id="richText">
+		<div class="tool" id="tool">
+			<ul id='uagent'>
+					<li class="tag curr0" title="粗体" name="bold" unselectable="on"></li>
+					<li class="tag curr1" title="斜体" name="italic"></li>
+					<li class="tag curr2" title="下划线" name="underline"></li>
+					<li class="tag curr3" title="字号" name="fontsize"></li>
+					<li class="tag curr4" title="字体" name="fontname"></li>
+					<li class="tag curr5" title="颜色" name="forecolor"></li>
+					<li class="tag curr6" title="链接" name="createlink"></li>
+					<li class="tag curr7" title="剪切" name="cut"></li>
+					<li class="tag curr8" title="复制" name="copy"></li>
+					<li class="tag curr9" title="居左" name="justifyleft"></li>
+					<li class="tag curr10" title="居中" name="justifycenter"></li>
+					<li class="tag curr11" title="居右" name="justifyright"></li>
+					<li class="tag curr12" title="项目符号" name="insertunorderedlist"></li>
+					<li class="tag curr13" title="编号" name="insertorderedlist"></li>
+					<li class="tag curr14" title="表格" name="insertHTML"></li>
+					<li class="tag curr15" title="减少缩进" name="outdent"></li>
+					<li class="tag curr16" title="加大缩进" name="indent"></li>
+					<li class="tag curr17" title="清除样式" name="removeformat"></li>
+					<li class="tag curr18"  title="图片" name="insertimage"></li>
+					<li class="tag curr19" title="表情" name="insertemotion"></li>
+					<li class="tag curr20" title="排版" name="lay"></li>
+			</ul>
+			<div id="pop-bar"></div>
+		</div>
+		
+	</div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+	<script src="js/richText.js"></script>
+</body>
+</html>  

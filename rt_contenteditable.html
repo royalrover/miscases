@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>  
+<html>  
+<head>  
+<meta charset="utf-8" />
+<title>openflow configure page</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/rt.css">
+<style>
+	body{
+		margin:auto;padding:0 0;height:100%;
+	}
+</style>
+<script>
+		function bold(){
+		console.log(document.getSelection());
+		document.execCommand("bold",false,null);
+	}
+</script>
+</head>
+<body> 
+	<div class="wrap" id="richText">
+		<div class="tool" id="tool">
+			<ul id='uagent'>
+					<li class="tag curr0" title="粗体" name="bold" unselectable="on"></li>
+					<li class="tag curr1" title="斜体" name="italic"></li>
+					<li class="tag curr2" title="下划线" name="underline"></li>
+					<li class="tag curr3" title="字号" name="fontsize"></li>
+					<li class="tag curr4" title="字体" name="fontname"></li>
+					<li class="tag curr5" title="颜色" name="forecolor"></li>
+					<li class="tag curr6" title="链接" name="createlink"></li>
+					<li class="tag curr7" title="剪切" name="cut"></li>
+					<li class="tag curr8" title="复制" name="copy"></li>
+					<li class="tag curr9" title="居左" name="justifyleft"></li>
+					<li class="tag curr10" title="居中" name="justifycenter"></li>
+					<li class="tag curr11" title="居右" name="justifyright"></li>
+					<li class="tag curr12" title="项目符号" name="insertunorderedlist"></li>
+					<li class="tag curr13" title="编号" name="insertorderedlist"></li>
+					<li class="tag curr14" title="表格" name="insertHTML"></li>
+					<li class="tag curr15" title="减少缩进" name="outdent"></li>
+					<li class="tag curr16" title="加大缩进" name="indent"></li>
+					<li class="tag curr17" title="清除样式" name="removeformat"></li>
+					<li class="tag curr18"  title="图片" name="insertimage"></li>
+					<li class="tag curr19" title="表情" name="insertemotion"></li>
+					<li class="tag curr20" title="排版" name="lay"></li>
+			</ul>
+			<div id="pop-bar" >
+			</div>
+		</div>
+
+        <div id="content" style="width:890px;height:370px;" contenteditable="">
+            no zuo no die why you try?
+        </div>
+	</div>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
+	<script>
+        window.onload = function(){
+            // JS编辑器
+            // @version beta 0.1
+            // @date 2010-03-21
+            // @author goodNess
+            // @blog http://www.cnblogs.com/goodness2010/
+            // @email goodNess2010@126.com
+            var rt={};
+            rt.browser=(function(ua){
+                ua=ua.toLowerCase();
+                var bro = {
+                    ie: /msie/g.test(ua) && !/opera/g.test(ua),
+                    safari: /webkit/g.test(ua) && !/chrome/g.test(ua),
+                    chrome: /chrome/g.test(ua),
+                    opera: /opera/g.test(ua),
+                    firefox: /firefox/g.test(ua) && /gecko/g.test(ua)
+                },ver='';
+                //若是IE，则取出版本号
+                if(bro.ie){
+                    ver=/msie\s(\d+\.\d+)/gi.exec(ua);
+                    ver=ver[1];
+                }
+                bro.version=ver;
+                return bro;
+            })(window.navigator.userAgent);
+
+            rt._init=function(){
+                var idoc;
+                idoc= document;
+                rt.idoc=idoc;
+            }();
+            //不需要设置参数的命令
+            rt.NO_ARG_COMMAND = {
+                BOLD: 'bold',
+                ITALIC: 'italic',
+                UNDERLINE: 'underline',
+                CUT: 'cut',
+                COPY: 'copy',
+                JUSTIFYLEFT: 'justifyleft',
+                JUSTIFYRIGHT: 'justifyright',
+                JUSTIFYCENTER: 'justifycenter',
+                INSERTUNORDEREDLIST: 'insertunorderedlist',
+                INSERTORDEREDLIST: 'insertorderedlist',
+                OUTDENT: 'outdent',
+                INDENT: 'indent',
+                REMOVEFORMAT: 'removeformat'
+            };
+            //需要单击显示下拉框的命令
+            rt.POP_COMMAND = {
+                FONTSIZE : 'fontsize',
+                FONTNAME : 'fontname',
+                FORECOLOR : 'forecolor',
+                INSERTHTML : 'insertHTML',
+                CREATELINK : 'createlink',
+                INSERTIMAGE : 'insertimage',
+                INSERTEMOTION : 'insertemotion'
+            }
+            //显示下拉框
+            rt.showPop=function(node,props){
+                if(!node){
+                    return;
+                }
+                var $pop=$("#pop-bar"),x=node.offsetLeft,y=node.offsetTop+$(node).height();
+                $pop.css({left:x,top:y});
+                $pop.css(props);
+                $pop.show();
+            };
+            //隐藏下拉框
+            rt.hidePop=function(){
+                $("#pop-bar").css({display:'none'});
+            };
+            //执行execCommand命令
+            rt.execEdit=function(command,param){
+                if(!rt.idoc.execCommand)
+                    return;
+                rt.ifr.contentWindow.focus();
+                rt.idoc.execCommand(command,false,param);
+
+            }
+
+            /*    function getSelection(){
+             var sn=window.getSelection() || document.getSelection() || document.selection;
+             return sn;
+             }*/
+
+            rt.addEvent=function(){
+                var comm='';
+                $("body").click(function(e){
+                    var targ=e.target,attr,
+                            popWin,html='';
+                    if(targ.tagName.toLowerCase()==='li'){
+                        attr=targ.getAttribute("name").toLowerCase();
+                        if(attr.toUpperCase() in rt.NO_ARG_COMMAND){
+                            rt.execEdit(attr,null);
+                            rt.hidePop();
+                        }else if(attr.toUpperCase() in rt.POP_COMMAND){
+                            popWin=$("#pop-bar");
+                            html='';
+                            popWin.empty();
+                            switch (attr){
+                                case 'fontsize':
+                                    for(var i=1;i<=7;i++){
+                                        html+="<div><a href='javascript:void(0);' class='bas f"+i+"' name='"+i+"'>字号"+i+"</a></div>";
+                                    }
+                                    popWin.append($(html));
+                                    rt.showPop($("#uagent>li[name=fontsize]")[0],{height:'200px',width:'100px'});
+                                    comm='fontsize';
+                                    break;
+                                case 'fontname':
+                                    html+="<div><a href='javascript:void(0);' class='bas f2' name='SimSun'>宋体</a></div>";
+                                    html+="<div><a href='javascript:void(0);' class='bas f2' name='LiSu'>隶书</a></div>";
+                                    html+="<div><a href='javascript:void(0);' class='bas f2' name='Microsoft YaHei'>雅黑</a></div>";
+                                    html+="<div><a href='javascript:void(0);' class='bas f2' name='YouYuan'>幼圆</a></div>";
+                                    popWin.append($(html));
+                                    rt.showPop($("#uagent>li[name=fontname]")[0],{height:'200px',width:'100px'});
+                                    comm='fontname';
+                                    break;
+                                case 'createlink':
+                                    html+="<div style='margin-top:30px;margin-left:15px;'><label for='URL'>链接：</label><input id='URL' type='text' style='width:80%;height:20px'></input></div>" +
+                                            "<div style='text-align:center;'><button id='ok'>确定</button><button id='no'>取消</button></div>";
+                                    popWin.append($(html));
+                                    rt.showPop($("#uagent>li[name="+attr+"]")[0],{width:"300px",height:"100px"});
+                                    comm = 'createlink';
+                                    break;
+                                case 'insertimage':
+                                    html+="<div style='margin-top:30px;margin-left:15px;'><label for='URL'>链接：</label><input id='URL' type='text' style='width:80%;height:20px'></input></div>" +
+                                            "<div style='text-align:center;'><button id='ok'>确定</button><button id='no'>取消</button></div>";
+                                    popWin.append($(html));
+                                    rt.showPop($("#uagent>li[name="+attr+"]")[0],{width:"300px",height:"100px"});
+                                    comm = 'insertimage';
+                                    break;
+                            }
+                        }
+                    }else{
+                        //rt.hidePop();
+                    }
+                });
+                //单击 编辑框 ，隐藏pop窗口     iframe无法绑定事件，需要对其contentWindow或者idoc进行绑定事件。
+                $(rt.idoc).click(function(e){
+                    rt.hidePop();
+                });
+                //单击 下拉框 ，取得选中的值
+                $("#pop-bar").click(function(e){
+                    var tar=e.target;
+                    if(comm && comm!=='createlink' && comm!=='insertimage'){
+                        rt.execEdit(comm,$(tar).attr("name"));
+                        rt.hidePop();
+                        comm = null;
+                    }else{
+                        if(tar.id === 'ok'){ console.log(comm+'  '+$('#URL').val())
+                            rt.execEdit(comm,$('#URL').val());
+                            rt.hidePop();
+                        }else{
+                        }
+                    }
+                })
+            };
+            rt.addEvent();
+        }
+
+	</script>
+</body>
+</html>  

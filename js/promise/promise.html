@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="../vendor/jquery-1.11.1.js"></script>
+</head>
+<body>
+    <script>
+        function Promise(fn){
+            this.thenables = [];
+            this.catchables = [];
+            this.state = 'pending';
+            if(typeof fn === 'function'){
+                fn.call(this,this);
+            }
+        }
+        Promise.prototype = {
+            resolve: function(value){
+                if(this.state !== 'pending') return;
+                this.value = value;
+                this.state = 'resolved';
+                this.handle();
+                return this;
+            },
+            reject: function(error){
+                if(this.state !== 'pending') return;
+                this.error = error;
+                this.state = 'rejected';
+                this.handle();
+                return this;
+            },
+            then: function(fn1,fn2){
+                var thenable = {};
+                if(fn1 && typeof  fn1 === 'function'){
+                    thenable.done = fn1;
+                }
+                if(fn2 && typeof  fn2 === 'function'){
+                    thenable.fail = fn2;
+                }
+                thenable.promise = new Promise();
+                thenable.tag = 'then';  //标注这是thenable对象
+                this.thenables.push(thenable);
+                return thenable.promise;
+            },
+            catch: function(fn){ // 语法糖，只有一个参数，即错误处理函数
+                var catchable = {};
+                if(fn && typeof fn === 'function'){
+                    catchable.handler = fn;
+                }
+                catchable.tag = 'catch';
+                catchable.promise = new Promise();
+                this.catchables.push(catchable);
+                this.thenables.push(catchable);
+                return catchable.promise;
+            },
+            catchHandle: function(e){
+                var thenables,catchables,thenable,
+                        i,len,catchable,value;
+                thenables = this.thenables;
+
+                function getCatchable(thenable){
+                    if(thenable.promise.tag == 'then'){
+                        thenable = thenable.promise;
+                        return recurse(thenable);
+                    }
+                    return thenable;
+                }
+                console.log(thenables)
+                for(i = 0,len = thenables.length;thenable = thenables[i];i++){
+                    if(!thenable || !thenable.promise)
+                        break;
+                    catchable = getCatchable(thenable);
+                    try{
+                        value = catchable.handler.call(catchable,e);
+                    }catch(e){
+                        this.catchHandle(e);
+                    }
+                    catchable.promise.resolve(value);
+                }
+            },
+            handle: function(){
+                if(this.state === 'pending')return;
+                var len, i,thenPro,res;
+                try{
+                    for(i=0,len=this.thenables.length;i<len;i++){
+                        thenPro = this.thenables[i].promise;
+                        if(thenPro.tag == 'then'){
+                            switch (this.state){
+                                case 'resolved':
+                                    res = this.thenables[i].done.call(this.thenables[i],this.value);
+                                    if(res && res instanceof Promise){
+                                        res.then(thenPro.resolve.bind(thenPro),thenPro.reject.bind(thenPro));
+                                    }else{
+                                        thenPro.resolve(res);
+                                    }
+                                    break;
+                                case 'rejected':
+                                    res = this.thenables[i].fail.call(this.thenables[i],this.error);
+                                    if(res && res instanceof Promise){
+                                        res.then(thenPro.resolve.bind(thenPro),thenPro.reject.bind(thenPro))
+                                    }else{
+                                        thenPro.reject(res);
+                                    }
+                                    break;
+                            }
+                        }else{ // tag == 'catchable'
+                            var catchables,value;
+
+                            function getCatchable(thenable){
+                                if(thenable.promise.tag == 'then'){
+                                    thenable = thenable.promise;
+                                    return getCatchable(thenable);
+                                }
+                                return thenable;
+                            }
+
+                            console.log(this.thenables)
+
+                            if(!this.thenables[i] || !thenPro)
+                                break;
+                            catchable = getCatchable(this.thenables[i]);
+                            try{
+                                value = catchable.handler.call(catchable,e);
+                            }catch(e){
+                                this.handle(e);
+                            }
+                            catchable.promise.resolve(value);
+                        }
+                    }
+                }catch(e){
+                    thenPro.reject(new Error('error'));
+                }
+            }
+        }
+
+        function foo(){
+            var p = new Promise();
+            setTimeout(function(){
+                console.log('after 2s,foo start...')
+            //    p.resolve('hello,i am foo')
+                p.reject('it is an error')
+            },2000);
+            return p;
+        }
+        function f1(msg){
+            console.log('f1 receive: '+msg);
+            JSON.parse('ds')
+            var p = new Promise(function(){
+                console.log(new Date())
+                setTimeout(function(){
+                    console.log('delay 3s')
+                    p.resolve('delay 3s send')
+                },3000)
+            });
+
+        //    return 'f1 says: '+ msg;
+            return p.then(function(m){console.log('return promise '+m)});
+        }
+        function f1err(msg){
+            console.log('f1err: '+msg+new Date());
+            var p = new Promise(function(){
+                setTimeout(function(){
+                    p.resolve('it does not matter,do not worry about it!')
+                },3000)
+            });
+
+            //    return 'f1 says: '+ msg;
+            return p.then(function(m){console.log(''+m);return '放心'});
+        }
+        function f2(msg){
+            console.log('f2: ' + msg + new Date());
+        }
+        function f2err(msg){
+            console.log('f2error: '+msg+new Date())
+        }
+/*        new Promise(function(){
+            var p = this; console.log(new Date())
+            setTimeout(function(){
+                JSON.parse('sdf')
+                console.log('after 2s,foo start...'+new Date());
+            //    p.resolve('roger that')
+                p.reject(new Error('message wrong'))
+            },2000);
+        }).then(f1,f1err).then(f2,f2err).catch(function(e){console.log(e)});*/
+
+        new Promise(function(){
+            var p = this; console.log(new Date())
+            setTimeout(function(){
+                console.log('after 2s,foo start...'+new Date());
+                //    p.resolve('roger that')
+                p.reject(new Error('message wrong'))
+            },2000);
+        }).then(f1).then(f2).catch(function(e){console.log(e)});
+
+/*        function f(){
+            setTimeout(function(){
+                JSON.parse('dsd');
+            },2000)
+        }
+        (function(){
+            try{
+                f();
+            }catch (e){console.log(e)}
+        })()*/
+    </script>
+    <script>
+        $.wait = function(mills){
+            var def = new $.Deferred();
+            setTimeout(function(){
+                def.resolve();
+            },mills)
+            return def;
+        }
+        function log(){
+            console.log('i am from future');
+        }
+     //   $.wait(3000).then(log);
+    </script>
+</body>
+</html>

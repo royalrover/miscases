@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Suckfish dropdown</title>
+    <style>
+        .dropdown,ul{margin: 0;padding: 0;list-style: none;float: left;border: 1px solid #486b02;background: #8bd400;border-left: 0;}
+        .dropdown li{float: left;width:8em;text-align: center;border-left: 1px solid red;}
+        .dropdown li ul{position: absolute;left: -999em;width: 8em;}
+        .dropdown li li{border-bottom: 1px solid red;border-left: 0;}
+        .dropdown li:hover ul{left: auto;}
+        .dropdown a{text-decoration: none;display: block;color:#2b3f00;}
+        .dropdown a:hover,.dropdown a:focus{color: #e4ffd3;background: #6da203;}
+    </style>
+</head>
+<body>
+    <ul class="dropdown">
+        <li><a href="#">home</a></li>
+        <li><a href="#">products</a>
+            <ul>
+                <li><a href="#2">silverback</a></li>
+                <li><a href="#2">fontdeck</a></li>
+            </ul>
+        </li>
+        <li><a href="aa"></a>services
+            <ul>
+                <li><a href="ad">design</a></li>
+                <li><a href="ad">development</a></li>
+                <li><a href="ad">consultancy</a></li>
+            </ul>
+        </li>
+        <li><a href="ds">contact us</a></li>
+    </ul>
+</body>
+</html>
