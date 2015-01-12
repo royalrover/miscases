@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <div>
+        <video id="v" controls="controls" autoplay="autoplay" src="a.mp4" width="500" height="300"></video>
+    </div>
+    <canvas id="c" width="500" height="300"></canvas>
+    <div>
+        <img id="shot" width="500" height="300" >
+    </div>
+    <button id="btn">点击截图</button>
+    <script>
+        function $(i){return document.getElementById(i)}
+        var c = $("c"),v = $("v");
+        var g = c.getContext("2d");
+        var btn = $("btn"),img = $("shot");
+        function gray(g){
+            var imageData,data,avr;
+            g.drawImage(v,0,0,g.canvas.width, g.canvas.height);
+            imageData = g.getImageData(0,0, g.canvas.width, g.canvas.height);
+            data = imageData.data;
+            //data包含图片像素信息，每个像素按照R、G、B、A 4个字节依次排列。
+            //其中  data.width  为列数，data.height  为行数。
+            //  可以使用 imageData_cache = g.createImageData(imgdata)创建缓存
+            for(var i=0,len=data.length;i<len;i+=4){
+                avr = (data[i] + data[i+1] + data[i+2]) / 3;
+                data[i+2] = data[i+1] = data[i] = avr;
+            }
+            // 使用putImageData，则对全局透明度globalAlpha以及其他合成处理则
+            // 没有效果，即参数中的imageData为最终处理值。
+            g.putImageData(imageData,0,0);
+            requestAnimationFrame(function(){gray(g)});
+        }
+        function shot(){
+            var imageData,data,avr,canvas,graphic;
+            canvas = document.createElement("canvas");
+            canvas.style.cssText = "width:500px;height:300px;"
+            graphic = canvas.getContext("2d");
+            graphic.drawImage(v,0,0,graphic.canvas.width, graphic.canvas.height);
+            img.src = canvas.toDataURL();
+            canvas = null;
+        }
+
+        //判断当前点是否已经绘制。
+        function isInPaint(graphic,e){
+            var cx = e.clientX,cy = e.clientY;
+            var r = graphic.canvas.getBoundingClientRect();
+            var imgData;
+            cx = (cx - r.left) * (graphic.canvas.width / r.width);
+            cy = (cy - r.top) * (graphic.canvas.height / r.height);
+            //取出点击的该像素的数据
+            //判断当前像素的alpha值是否为0
+            imgData = graphic.getImageData(cx,cy,1,1);
+            for(var i=0,len=imgData.length;i<len;i+=4){
+                if(imgData[i+3] == 0)
+                    return false;
+            }
+            return true;
+        }
+        //判断点是否在路径上，使用context的原生方法
+        function isInPath(graphic,e){
+            var cx = e.clientX,cy = e.clientY;
+            var r = graphic.canvas.getBoundingClientRect();
+            var imgData;
+            cx = (cx - r.left) * (graphic.canvas.width / r.width);
+            cy = (cy - r.top) * (graphic.canvas.height / r.height);
+            return graphic.isPointInPath(cx,cy);
+        }
+        window.onload = function(){
+            v.addEventListener('play', function(){
+                requestAnimationFrame(function(){gray(g)});
+            },false);
+            btn.addEventListener("click",function(){
+                shot()
+            },false)
+        }
+
+    </script>
+</body>
+</html>

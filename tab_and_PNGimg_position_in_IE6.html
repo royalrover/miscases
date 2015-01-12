@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>tab</title>
     <style>
+        body { behavior:url("csshover.htc"); }
         .tab{margin:20px auto;overflow: hidden;border: 1px solid #000000;display: table;}
         .tab-show{display: table-cell;float: left; border: 1px solid #c0c0c0;margin-left: -1px;margin-top: -1px;}
         .tab-show:hover{border-bottom: 0;}
@@ -14,14 +15,14 @@
         .nav{padding: 0;margin: 0;list-style: none;width:40px;}
         .nav li{width: 160px;height: 40px; overflow: hidden;}
         .nav li a{text-decoration: none;}
-        .i1{margin: 0 0 0 0;}
-        .i1:hover{margin: -40px 0 0}
-        .i2{margin: 0 0 0 -160px;}
-        .i2:hover{margin: -40px 0 0 -160px;}
-        .i3{margin: 0 0 0 -320px;}
-        .i3:hover{margin: -40px 0 0 -320px;}
-        .i4{margin: 0 0 0 -480px;}
-        .i4:hover{margin:  -40px 0 0 -480px;}
+        .i1{margin: -2px 0 0 -2px;}
+        .a:hover .i1{margin: -42px 0 0 -2px;}
+        .i2{margin: -2px 0 0 -162px;}
+        .a:hover .i2{margin: -42px 0 0 -162px;}
+        .i3{margin: -2px 0 0 -322px;}
+        .a:hover .i3{margin: -42px 0 0 -322px;}
+        .i4{margin: -2px 0 0 -482px;}
+        .a:hover .i4{margin:  -42px 0 0 -482px;}
 
         .onav{padding: 0;margin: 20px 0 0;list-style: none;width:40px;}
         .onav li{width: 160px;height: 40px; overflow: hidden;position: relative;}
@@ -34,6 +35,9 @@
         .oi3:hover{left: -320px;top: -40px;}
         .oi4{position: absolute;left: -480;top:0;}
         .oi4:hover{left: -480px;top: -40px;}
+
+        .dd:hover{background: yellowgreen;}
+        .da:hover{text-decoration: none;color:red;}
     </style>
 </head>
 <body>
@@ -47,16 +51,16 @@
 
     <ul class="nav">
         <li>
-            <a href="void 0"><img class="i1" src="img/png_btn.png"></a>
+            <a href="void 0" class="a"><img class="i1" src="img/png_btn.png"></a>
         </li>
         <li>
-            <a href="void 0"><img class="i2" src="img/png_btn.png"></a>
+            <a href="void 0" class="a"><img class="i2" src="img/png_btn.png"></a>
         </li>
         <li>
-            <a href="void 0"><img class="i3" src="img/png_btn.png"></a>
+            <a href="void 0" class="a"><img class="i3" src="img/png_btn.png"></a>
         </li>
         <li>
-            <a href="void 0"><img class="i4" src="img/png_btn.png"></a>
+            <a href="void 0" class="a"><img class="i4" src="img/png_btn.png"></a>
         </li>
     </ul>
 
@@ -74,5 +78,9 @@
             <a href="void 0"><img class="oi4" src="img/png_btn.png"></a>
         </li>
     </ul>
+
+    <div class="dd" style="width: 100px;height: 100px;border:solid 1px black;">
+        <a href="###" class="da" style="line-height: 30px;background: #cecece;">abcdefghigklmn</a>
+    </div>
 </body>
 </html>

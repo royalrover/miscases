@@ -39,10 +39,10 @@
                     thenable.fail = fn2;
                 }
                 thenable.promise = new Promise();
-                thenable.tag = 'then';  //标注这是thenable对象
+        //        thenable.tag = 'then';  //标注这是thenable对象
                 this.thenables.push(thenable);
                 return thenable.promise;
-            },
+            },/*
             catch: function(fn){ // 语法糖，只有一个参数，即错误处理函数
                 var catchable = {};
                 if(fn && typeof fn === 'function'){
@@ -78,14 +78,14 @@
                     }
                     catchable.promise.resolve(value);
                 }
-            },
+            },*/
             handle: function(){
                 if(this.state === 'pending')return;
                 var len, i,thenPro,res;
                 try{
                     for(i=0,len=this.thenables.length;i<len;i++){
                         thenPro = this.thenables[i].promise;
-                        if(thenPro.tag == 'then'){
+                        if(true){
                             switch (this.state){
                                 case 'resolved':
                                     res = this.thenables[i].done.call(this.thenables[i],this.value);
@@ -115,7 +115,7 @@
                                 return thenable;
                             }
 
-                            console.log(this.thenables)
+                    //        console.log(this.thenables)
 
                             if(!this.thenables[i] || !thenPro)
                                 break;
@@ -145,7 +145,6 @@
         }
         function f1(msg){
             console.log('f1 receive: '+msg);
-            JSON.parse('ds')
             var p = new Promise(function(){
                 console.log(new Date())
                 setTimeout(function(){
@@ -185,13 +184,14 @@
         }).then(f1,f1err).then(f2,f2err).catch(function(e){console.log(e)});*/
 
         new Promise(function(){
-            var p = this; console.log(new Date())
+            var p = this;
+            console.log(new Date())
             setTimeout(function(){
                 console.log('after 2s,foo start...'+new Date());
-                //    p.resolve('roger that')
-                p.reject(new Error('message wrong'))
+                p.resolve('roger that')
+                //    p.reject(new Error('message wrong'))
             },2000);
-        }).then(f1).then(f2).catch(function(e){console.log(e)});
+        }).then(f1).then(f2);
 
 /*        function f(){
             setTimeout(function(){

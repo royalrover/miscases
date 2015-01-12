@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link type="text/css" rel="stylesheet" href="../../css/moon.lib.css">
+    <style>
+        .auto-ul{
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .auto-ul li{
+            margin: 0;
+            padding:5px;
+        }
+        .auto-ul a{
+            text-decoration: none;
+            color: black;
+        }
+        .w{
+            background: #cecece;
+            cursor: default;
+        }
+        input{
+            border: 1px solid #c0c0c0;
+        }
+    </style>
+    <script src="../tool/firebug.js"></script>
+</head>
+<body>
+    <div class="w250 h200 bgf0 auto tc pt15">
+        <div>
+            <form>
+                <label for="t">username:&nbsp;</label>
+                <input type="text" id="t" autocomplete="false" value="" class="p5 w150 lh22">
+            </form>
+        </div>
+    </div>
+    <script>
+        function $(m){
+            return document.getElementById(m)
+        }
+        function createBox(){
+            var div = document.createElement('div'),w;
+            w = $('t').offsetWidth;
+            div.id = 'box';
+            div.style.cssText = 'position:absolute;width:'+(w-2)+'px;border:1px solid #cecece;display:none;';
+            div.innerHTML = '<ul class="auto-ul" id="autobox-ul"></ul>'
+            return div;
+        }
+        function showBox(d,boxLocation){
+            d.style.display = '';
+            d.style.left = boxLocation.left + 'px';
+            d.style.top = boxLocation.top + 'px';
+        }
+        function hideBox(d){
+            d.style.display = 'none';
+            d.getElementsByTagName('ul')[0].innerHTML = '';
+        }
+        //创建xhr
+        function createXHR(){
+            if('XMLHttpRequest' in window){
+                createXHR = function(){
+                    return new XMLHttpRequest();
+                }
+            }else{
+                var i= 0,len, fns = [function(){return new ActiveXObject('Microsoft.XMLHTTP')},function(){return new ActiveXObject('Msxml2.XMLHTTP')},
+                    function(){return new ActiveXObject('Msxml2.XMLHTTP.3.0')},function(){return new ActiveXObject('Msxml2.XMLHTTP.6.0')}];
+
+                for(len = fns.length;i<len;i++){
+                    try{
+                        fns[i]();
+                        createXHR = fns[i];
+                        break;
+                    }catch (e){
+                    }
+                }
+            }
+            return createXHR();
+        }
+        // ajax实现
+        function ajaxInit(ajaxData){
+            var xhr = createXHR(),get_data,isLoaded = false,
+                    map = {
+                        'html': 'text',
+                        'arraybuffer': 'arraybuffer',
+                        'blob': 'blob',
+                        'document': 'document',
+                        'json': 'text'
+                    };
+            ajaxData.onBefore = ajaxData.onBefore || function(){};
+            ajaxData.onSuccess = ajaxData.onSuccess || function(){};
+            ajaxData.onFailure = ajaxData.onFailure || function(){};
+            ajaxData.onComplete = ajaxData.onComplete || function(){};
+            ajaxData.timeout = ajaxData.timeout || 5000;
+            ajaxData.type = ajaxData.type || 'post';
+            /**
+             * 'text'：返回类型为字符串，这是默认值。
+                'arraybuffer'：返回类型为ArrayBuffer。
+                'blob'：返回类型为Blob。
+                'document'：返回类型为Document,用于xml。
+                'json'：返回类型为JSON object，支持JSON的浏览器（Firefox>9，chrome>30），
+                就会自动对返回数据调用JSON.parse() 方法。也就是说，你从xhr.response属性
+                （注意，不是xhr.responseText属性）得到的不是文本，而是一个JSON对象。
+             */
+            if(xhr.responseType)
+                   xhr.responseType = ajaxData.responseType in map ? map[ajaxData.responseType] : 'text';
+
+            ajaxData.onBefore();
+            xhr.open(ajaxData.type,ajaxData.url,true);
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState == 4 && !isLoaded){
+                    // 判断响应成功的几点：
+                    // 1，如果是访问本地文件，请求成功但不会获得响应码
+                    // 2，IE（通过ActiveXObject创建的xhr对象）会将204设置为1223
+                    // 3, opera会将204设置为0
+                    if(!xhr.status && location.protocol == 'file:'
+                            || xhr.status == 1223
+                            || xhr.status == 0 || xhr.status >= 200 && xhr.status < 300
+                            || xhr.status == 304){
+                        if(ajaxData.responseType.toLowerCase() == 'json'){
+                            get_data = 'JSON' in window ? JSON.parse(xhr.responseText) :
+                                    new Function('return ' + xhr.responseText + ";");
+                        }else if(ajaxData.responseType.toLowerCase() == 'html'){
+                            get_data = xhr.responseText;
+                        }else if(xhr.responseType.toLowerCase() == 'document'){
+                            get_data = xhr.responseXML;
+                        }else{
+                            get_data = xhr.response;
+                        }
+                        ajaxData.onSuccess(get_data);
+                    }else{
+                        ajaxData.onFailure();
+                    }
+                    ajaxData.onComplete();
+                    xhr = null;
+                }
+            }
+
+            setTimeout(function(){
+                isLoaded = true;
+            },ajaxData.timeout);
+            if(ajaxData.type.toLowerCase() == 'get'){
+                xhr.setRequestHeader('X-Request-With','XMLHttpRequest');
+                xhr.send(null);
+            }else if(ajaxData.type.toLowerCase() == 'post' && ajaxData.data){
+                xhr.setRequestHeader('X-Request-With','XMLHttpRequest');
+                xhr.setRequestHeader('content-type','application/x-www-form-urlencoded');
+                xhr.send(ajaxData.data);
+            }
+
+            return xhr;
+        }
+        function addEvent(el,type,fn){
+            if(window.addEventListener){
+                el.addEventListener(type,fn,false)
+            }else{
+                el.attachEvent('on'+type,function(){
+                    var e = window.event;
+                    e.preventDefault = function(){
+                        e.returnValue = false;
+                    };
+                    e.stopPropagation = function(){
+                        e.cancelBubble = true;
+                    }
+                    fn.call(el,e);
+                })
+            }
+        }
+        //给文本框绑定事件
+        function bindEvent(t,fn){
+            var input = t;
+            //对输入框绑定事件
+            if(input.addEventListener){
+                input.addEventListener('input',fn,false);
+            }else{
+                input.attachEvent('onpropertychange',function(){
+                    var e = window.event;
+                    if(e.propertyName == 'value'){
+                         fn();
+                    }
+                });
+            }
+
+            if(window.VBArray && window.addEventListener && !window.WebSocket){
+                input.addEventListener('keyup',function(e){
+                    var code = e.keycode || e.charcode;
+                    if(code==8 || code==46){
+                        fn();
+                    }
+                },false) ;
+                input.oncut=function(){fn()};
+            }
+
+            //对按键事件侦听
+            addEvent(input,'keydown',function(e){
+                var l,ol = -1,nl;
+                if(e.keyCode == 40 || e.keyCode == 38){
+                    e.preventDefault();
+                    l = $('autobox-ul').getElementsByTagName('li');
+                    for(var i=0,len=l.length;i<len;i++){
+                        if(l[i].className == 'w'){
+                            ol = i;  //保存当前选定的选项
+                        }
+                        l[i].className = '';
+                    }
+                    if(e.keyCode == 40 || e.charCode == 40){ //下箭头
+                        ol++;
+                        if(ol <= len-1){
+
+                            l[ol].className = 'w';
+                            nl = l[ol];
+                        }else{
+                            l[0].className = 'w';
+                            nl = l[0];
+                        }
+                    }else if(e.keyCode == 38 || e.charCode ==38){ //上箭头
+                        ol--;
+                        if(ol >= 0){
+                            l[ol].className = 'w';
+                            nl = l[ol];
+                        }else{
+                            l[l.length-1].className = 'w';
+                            nl = l[l.length-1];
+                        }
+                    }
+                    this.value = nl.getElementsByTagName('a')[0].innerHTML;
+                    nl.className = 'w';
+                }
+            });
+            addEvent($('box'),'mousemove',function(e){
+                var t = e.target || e.srcElement,
+                        l = $('autobox-ul').getElementsByTagName('li');
+                e.preventDefault();
+                for(var i= 0,len=l.length;i<len;i++){
+                    l[i].className = '';
+                }
+                if(t.tagName.toLowerCase() == 'a'){
+                    t.parentNode.className = 'w';
+                    input.value = t.innerHTML;
+                }
+
+            })
+            //若输入框失去焦点，则隐藏补全框
+            addEvent(input,'blur',function(){
+                hideBox($('box'))
+            })
+        }
+        (function(){
+            var t = $('t'),div,boxLocation,ul;
+            div = createBox();
+            boxLocation = {
+                left: t.getBoundingClientRect().left + parseInt(document.documentElement.scrollLeft || document.body.scrollLeft || 0)
+                    - parseInt(document.documentElement.clientLeft || document.body.clientLeft || 0),
+                top: t.getBoundingClientRect().top + parseInt(document.documentElement.scrollTop || document.body.scrollTop || 0)
+                        - parseInt(document.documentElement.clientTop || document.body.clientTop || 0) +
+                        parseInt(t.offsetHeight)
+            };
+            document.body.appendChild(div);
+            ul = $('autobox-ul');
+            bindEvent(t,function(){
+                var value = t.value;
+                ajaxInit({
+                    type: 'get',
+                    timeout: 3000,
+                    url: './items.txt',
+                    responseType: 'html',
+                    onSuccess: function(data){
+                        var d = document.createElement('div');
+                        d.innerHTML = data;
+                        d = d.getElementsByTagName('ul')[0];
+                        ul.innerHTML = d.innerHTML;
+                        showBox(div,boxLocation)
+                    }
+                })
+            })
+        })()
+    </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <script>
+        function Obj(id){
+            this.id = id;
+        }
+        var f = document.createElement('iframe');
+        f.style.cssText = 'border: 1px solid #dddddd';
+        f.src = './t.html';
+        f.onload = function(){
+            console.log('loaded');
+            f.contentDocument.onclick = function(){
+                console.log(true)
+            }
+            console.log(f.contentWindow.o instanceof Obj, {}.toString.call(f.contentWindow.s) == "[object String]")
+        }
+        Object.prototype.x = 200;
+        function foo(){
+            var x = 20;
+            (function f(){
+                console.log(x);
+            })()
+
+        }
+        foo()
+        document.body.appendChild(f);
+
+        function god(){
+            var abc = 'abc'
+            try{
+                [1,2,3].forEach(function name(n,i){
+                    if(n % 2 ==0)
+                        throw n;
+                })
+            }catch (e){
+                return e;
+            }
+            return null;
+        }
+    //    god()
+        function p(){
+            var parent = 'dad';
+            return function C(age){
+                var child = 'son';
+            //    debugger
+                return child +' '+age +" "+ parent
+            }
+        }
+        p()(10);
+
+        function z(a,b,c){
+            arguments[2] = 10;
+            console.log(c)
+        }
+        z(1,2)
+    </script>
+</body>
+</html>

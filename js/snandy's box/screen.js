@@ -81,8 +81,10 @@
         }else{
             isStandardMode = false;
         }
+
         if(/MSIE|Trident/.test(ua)){
             engine = "Trident";
+            isIe = true;
         }else if(/WebKit/.test(ua)){
             engine = "WebKit";
         }else if(/Gecko/.test(ua)){
@@ -91,7 +93,7 @@
             engine = 'Presto';
         }
 
-        if(ua.match(/(IE|Firefox|Chrome|Safari|Opera)(?:\/)(\d+)/)){
+        if(ua.match(/(IE|Firefox|Chrome|Safari|Opera)(?:\/)*(\d+)/)){
             name = RegExp.$1;
             switch (name){
                 case 'IE':
@@ -121,7 +123,7 @@
                 isIe10 = true;
             }else if(window.HTMLElement){
                 isIe9 = true;
-            }else if(window.localStorage){
+            }else if(window.localStorage){  //IE8不支持addEventListener
                 isIe8 = true;
             }else if(document.documentElement.currentStyle.minWidth){
                 isIe7 = true;
@@ -154,6 +156,12 @@
     //类型判定
     Screen.isObject = function(obj){
         return typeof obj === 'object' ? true : false;
+    };
+    Screen.isDOM = function(obj){
+        return Screen.isObject(obj) && !!obj.nodeType;
+    };
+    Screen.isScreen = function(obj){
+        return Screen.isObject(obj) && !!(obj instanceof Screen);
     }
     Screen.isArray = function(obj){
         return toStr.apply(obj) === '[object Array]' ? true : false;
@@ -182,6 +190,15 @@
     Screen.isDocument = function(d){
         return d && d.nodeType && d.nodeType === 9;
     }
+
+    Screen.typeOf = function(o){
+        return typeof o == 'undefined' ? 'undefined' :
+            typeof o == 'object' ?
+                (/function/i.test(o + '') ? 'function' : 'object') :
+                o.constructor == RegExp || !(o.constructor instanceof Function) ?
+                    'object' : typeof o;
+
+    }
     //数组化
     function makeArray(arr){
         if(!arr) return [];
@@ -195,7 +212,7 @@
                 --len;
                 ret[len] = arr[len];
             }
-        }else if(arr instanceof Object){
+        }else if(arr instanceof Object || typeof arr == 'object'){
             ret.push(arr);
         }
         return ret;
@@ -274,7 +291,7 @@
             return ret;
         }
 
-        if(ttag.test(s)){ console.log(s)
+        if(ttag.test(s)){
             return makeArray(context.getElementsByTagName(s));
         }
 
@@ -956,7 +973,7 @@
                                 attr = attrs[i];
                                 if(attr.specified){
                                     n[attr.name] = attr.value;
-                                }  console.log(n[attr.name] )
+                                }
                             }
                             n.text = scripts[i].text //必须，text通过属性遍历不出
                             frag.appendChild(n);
@@ -1120,7 +1137,9 @@
         }
         Data.prototype.unlock = function(el){
           var prefix = S.version,value;
-           value = el.valueOf(Data);
+
+          if(!S.isDOM(el) && S.isScreen(el)) el = el[0];
+          value = el.valueOf(Data);
           if(typeof value === 'object'){
               var now = new Date().getTime(),
                   guid = prefix + now + (count++);
@@ -1562,6 +1581,68 @@
             }
         }
 
+        /**
+         * 实现DomContentLoaded的兼容性
+         * @param callback
+         */
+        var onDomContentLoaded = function(callback){
+            var onlyOnce = true;
+            var onReady = function(callback){
+                if(onlyOnce){
+                    onlyOnce = false;
+                    onDomContentLoaded.isDomReady = true;
+                    try{
+                        callback();
+                    }catch(e){
+                        throw(new Error('DOM Ready callback occurs an error!'))
+                    }
+                }
+                return;
+            }
+
+            if(S.browser.isIe && !('HTMLElement' in window)){  // lt IE9
+                if(self.top === self){
+                    function s(){
+                        try{
+                            document.documentElement.doScroll('left');
+                            onReady(callback);
+                            return;
+                        }catch(e){
+                            setTimeout(s,50);
+                        }
+                    }
+                    s();
+                }else{ //包含框架
+                    document.attachEvent('onreadystatechange',function(){
+                        if(document.readyState === 'complete'){
+                            onReady(callback);
+                            document.detachEvent('onreadystatechange',arguments.callee);
+                        }
+                    });
+                }
+
+                document.onload = function(){
+                    onReady(callback);
+                    document.onload = null;
+                };
+            }else{
+                document.addEventListener('DOMContentLoaded',function(){
+                    onReady(callback);
+                    document.removeEventListener('DOMContentLoaded',arguments.callee);
+                },false);
+
+                document.onload = function(){
+                    onReady(callback);
+                    document.onload = null;
+                };
+            }
+        };
+
+        S.extend({
+            ready: function(fn){
+                onDomContentLoaded(fn);
+            }
+        })
         S.fn.extend({
             bind: function(type,fn){
                 this.each(function(el){
@@ -1607,7 +1688,7 @@
     // ajax模块
     (function(S){
         function createXHR(){
-            if('XMLHttpRequst' in window){
+            if('XMLHttpRequest' in window){
                 createXHR = function(){
                     return new XMLHttpRequest();
                 }
@@ -1627,31 +1708,86 @@
             return createXHR();
         }
 
+        /**
+         * ajaxData:{
+         *      onBefore: func,
+         *      responseType: '',
+         *      onSuccess: func,
+         *      onFaliure: func,
+         *      onComplete: func,
+         *      timeout: num,
+         *      type: '',
+         *      url: '',
+         *      data: ''
+         * }
+         * @param ajaxData
+         * @returns {*}
+         */
         function ajaxInit(ajaxData){
-            var xhr = createXHR(),get_data;
-            ajaxData.responseType = ajaxData.responseType || 'json';
-            if(ajaxData.before)
-                ajaxData.before();
-            xhr.open(xhr.type,xhr.url,true);
+            var xhr = createXHR(),get_data,isLoaded = false,
+                map = {
+                    'html': 'text',
+                    'arraybuffer': 'arraybuffer',
+                    'blob': 'blob',
+                    'document': 'document',
+                    'json': 'text'
+                };
+            ajaxData.onBefore = ajaxData.onBefore || function(){};
+            ajaxData.onSuccess = ajaxData.onSuccess || function(){};
+            ajaxData.onFailure = ajaxData.onFailure || function(){};
+            ajaxData.onComplete = ajaxData.onComplete || function(){};
+            ajaxData.timeout = ajaxData.timeout || 5000;
+            ajaxData.type = ajaxData.type || 'post';
+            /**
+             * 'text'：返回类型为字符串，这是默认值。
+             'arraybuffer'：返回类型为ArrayBuffer。
+             'blob'：返回类型为Blob。
+             'document'：返回类型为Document,用于xml。
+             'json'：返回类型为JSON object，支持JSON的浏览器（Firefox>9，chrome>30），
+             就会自动对返回数据调用JSON.parse() 方法。也就是说，你从xhr.response属性
+             （注意，不是xhr.responseText属性）得到的不是文本，而是一个JSON对象。
+             */
+            if(xhr.responseType)
+                xhr.responseType = ajaxData.responseType in map ? map[ajaxData.responseType] : 'text';
+
+            ajaxData.onBefore();
+            xhr.open(ajaxData.type,ajaxData.url,true);
             xhr.onreadystatechange = function(){
-                if(xhr.readyState == 4){
-                    if(xhr.status >= 200 && xhr.status < 300 || xhr.status == 304){
-                        if(ajaxData.responseType == 'json'){
-                            get_data = 'JSON' in window ? JSON.parse(ajaxData.responseText) :
-                                    new Function('return ' + ajaxData.responseText + ";");
+                if(xhr.readyState == 4 && !isLoaded){
+                    // 判断响应成功的几点：
+                    // 1，如果是访问本地文件，请求成功但不会获得响应码
+                    // 2，IE（通过ActiveXObject创建的xhr对象）会将204设置为1223
+                    // 3, opera会将204设置为0
+                    if(!xhr.status && location.protocol == 'file:'
+                        || xhr.status == 1223
+                        || xhr.status == 0 || xhr.status >= 200 && xhr.status < 300
+                        || xhr.status == 304){
+                        if(ajaxData.responseType.toLowerCase() == 'json'){
+                            get_data = 'JSON' in window ? JSON.parse(xhr.responseText) :
+                                new Function('return ' + xhr.responseText + ";");
+                        }else if(ajaxData.responseType.toLowerCase() == 'html'){
+                            get_data = xhr.responseText;
+                        }else if(xhr.responseType.toLowerCase() == 'document'){
+                            get_data = xhr.responseXML;
+                        }else{
+                            get_data = xhr.response;
                         }
-                        ajaxData.callback(get_data);
-                        ajaxData.success(get_data);
+                        ajaxData.onSuccess(get_data);
                     }else{
-                        ajaxData.failure();
+                        ajaxData.onFailure();
                     }
+                    ajaxData.onComplete();
+                    xhr = null;
                 }
             }
 
-            if(xhr.type.toLowerCase() == 'get'){
+            setTimeout(function(){
+                isLoaded = true;
+            },ajaxData.timeout);
+            if(ajaxData.type.toLowerCase() == 'get'){
                 xhr.setRequestHeader('X-Request-With','XMLHttpRequest');
                 xhr.send(null);
-            }else if(xhr.type.toLowerCase() == 'post' && ajaxData.data){
+            }else if(ajaxData.type.toLowerCase() == 'post' && ajaxData.data){
                 xhr.setRequestHeader('X-Request-With','XMLHttpRequest');
                 xhr.setRequestHeader('content-type','application/x-www-form-urlencoded');
                 xhr.send(ajaxData.data);
@@ -1682,5 +1818,329 @@
         });
     })(Screen);
 
+    // 表单序列化
+    (function(S){
+        function serialize(form){
+            if(Screen.isScreen(form)){
+                form = form[0];
+            }
+            if(!(form instanceof HTMLElement) || !(form instanceof HTMLFormElement)){
+                return;
+            }
+            var ret = [],els = form.elements, i,len,options, j, l,op,opvalue;
+            for(i=els,len=els.length;i<len;i++){
+                switch(els[i].type.toLowerCase()){
+                    case 'select-one':
+                    case 'select-multiple':
+                        options = els[i].options;
+                        for(j=0,l=options.length;j<l;j++){
+                            op = options[i];
+                            if(op.hasAttribute()){
+                                opvalue = op.hasAttribute('value') ? op.getAttribute('value') :
+                                    op.text;
+                            }else{
+                                opvalue = op.attributes.value.specified ? op.attributes.value : op.text;
+                            }
+                            if(els[i].name)
+                                ret.push(encodeURIComponent(els[i].name) + '=' + encodeURIComponent(opvalue));
+                        }
+                        break;
+                    case 'undefined': //fieldset会返回undefined
+                    case 'file':
+                    case 'submit':
+                    case 'button':
+                    case 'reset':
+                        break;
+                    case 'radio':
+                    case 'checkbox':
+                    case 'text':
+                    case 'password':
+                        if(!els[i].enabled)
+                            break;
+                    default:
+                        if(els[i].name)
+                            ret.push(encodeURIComponent(els[i].name) + '=' + encodeURIComponent(els[i].value));
+                        break;
+                }
+            }
+            ret.join('&');
+            return ret;
+        }
+
+        S.extend({
+            serialize: function(obj){
+                return serialize(obj);
+            }
+        });
+
+        //------动画-------
+
+        (function(S){
+            /**
+             *
+             * @param speed: normal fast slow number
+             * @param mode: zoom(hide show) slide(slidein slideout)
+             * @param fn: callback
+             * @constructor
+             */
+            function Animation(speed,mode,fn){
+                this.speed = S.isNumber(speed) ? speed : speed || 'normal';
+                this.mode = mode || 'zoom';
+                this.fn = fn;
+                this.deltaHeight = 15; // 每次循环减少的高度，宽度减少量根据高度成比例计算
+                this.map = {
+                    'normal': 30,
+                    'fast': 20,
+                    'slow': 60
+                }
+            }
+
+            Animation.prototype = {
+                hide: function(el){
+                    if(!S.isDOM(el) && !S.isScreen(el)) return;
+                    if(S.isDOM(el) && !S.isScreen(el)) el = S(el);
+                    var height = (el.css('height') + '').replace('px',''),
+                        width  = (el.css('width') + '').replace('px','');
+                    //缓存原始高度
+
+                    var dataObj = S._data(el[0]),a;
+                    if(!dataObj){
+                        S._lockData(el[0]);
+                        dataObj = S._data(el);
+                    }
+                    a = dataObj['animation'] ? dataObj['animation'] : {};
+                    a.height = height;
+                    dataObj['animation'] = a;
+
+                    this.deltaWidth = this.deltaHeight * (height / width);
+
+
+
+                    if(this.mode == 'zoom'){
+                        a.width = width;
+                        this.recurseZoom(el,height,width,true)
+                    }else if(this.mode == 'slide'){
+                        this.recurseSlide(el,height,true)
+                    }
+                },
+                show: function(el){
+                    if(!S.isDOM(el) && !S.isScreen(el)) return;
+                    if(S.isDOM(el) && !S.isScreen(el)) el = S(el);
+                    var height,width;
+
+                    //获取原始高度
+                    var dataObj = S._data(el[0]),a;
+                    if(!dataObj){
+                        return;
+                    }
+                    a = dataObj['animation'];
+                    this.height = a.height;
+
+                    if(this.mode == 'zoom'){
+                        this.width = a.width;
+                        this.deltaWidth = this.deltaHeight * (this.height / this.width);
+                        this.recurseZoom(el,0,0,false)
+                    }else if(this.mode == 'slide'){
+                        this.recurseSlide(el,0,false)
+                    }
+                },
+                recurseZoom: function (el,height,width,isHidden){
+                    var that = this;
+                    if(isHidden){
+                        height -= this.deltaHeight;
+                        width -= this.deltaWidth;
+                        if(height >= 0 || width >= 0){
+                            el.css({
+                                height: height,
+                                width: width
+                            });
+                            setTimeout(function(){
+                                that.recurseZoom(el,height,width,isHidden);
+                            },this.map[this.speed]);
+                        }else{
+                            el.css('display','none');
+                            this.fn && this.fn.call(el);
+                        }
+                    }else{
+                        height += this.deltaHeight;
+                        width += this.deltaWidth;
+                        if(height <= this.height || width <= this.width){
+                            el.css({
+                                display: '',
+                                height: height,
+                                width: width
+                            });
+                            setTimeout(function(){
+                                that.recurseZoom(el,height,width,isHidden);
+                            },this.map[this.speed]);
+                        }else{
+                            el.css({
+                                height: this.height,
+                                width: this.width
+                            });
+                            this.fn && this.fn.call(el);
+                        }
+                    }
+                },
+                recurseSlide: function(el,height,isHidden){
+                    var that = this;
+                    if(isHidden){
+                        height -= this.deltaHeight;
+                        if(height >= 0){
+                            el.css({
+                                height: height
+                            });
+                            setTimeout(function(){
+                                that.recurseSlide(el,height,isHidden);
+                            },this.map[this.speed]);
+                        }else{
+                            el.css('display','none');
+                            this.fn && this.fn.call(el);
+                        }
+                    }else{
+                        height += this.deltaHeight;
+                        if(height <= this.height){
+                            el.css({
+                                display: '',
+                                height: height
+                            });
+                            setTimeout(function(){
+                                that.recurseSlide(el,height,isHidden);
+                            },this.map[this.speed]);
+                        }else{
+                            el.css({
+                                height: this.height
+                            });
+                            this.fn && this.fn.call(el);
+                        }
+                    }
+
+                }
+            }
+
+            S.fn.extend({
+                hide: function(speed,mode,fn){
+                    this.each(function(el){
+                        new Animation(speed,mode,fn).hide(el);
+                    })
+
+                },
+                show: function(speed,mode,fn){
+                    this.each(function(el){
+                        new Animation(speed,mode,fn).show(el);
+                    })
+                }
+            })
+        })(Screen);
+
+        //----添加删除class
+        (function(S){
+            var isClassList = false,addClass,
+                removeClass,toggleClass,hasClass;
+
+            addClass = (function(){
+                var div = doc.createElement('div');
+                if('classList' in div){
+                    isClassList = true;
+                    return function(el,className){
+                        el.classList.add(className);
+                    };
+                }else{
+                    return function(el,className){
+                        var cls;
+                        if(className.indexOf(' ') != -1){
+                            cls = className.split(' ');
+                            for(var i= 0,len=cls.length;i<len;i++){
+                                addClass(el,cls[i]);
+                            }
+                            return;
+                        }else{
+                            className = S.String.trim(className);
+                            if(new RegExp("\\s*"+ className + "\\s*").test(el.className)){
+                                return;
+                            }
+                            el.className += ' '+ className;
+                        }
+                    }
+                }
+                div = null;
+            })(),
+            removeClass = (function(){
+                if(isClassList){
+                    return function(el,className){
+                        el.classList.remove(className);
+                    }
+                }
+                return function(el,className){
+                    var cls,classNames,c;
+                    if(className.indexOf(' ') != -1){
+                        cls = className.split(' ');
+                        for(var i= 0,len=cls.length;i<len;i++){
+                            removeClass(el,cls[i]);
+                        }
+                        return;
+                    }else{
+                        classNames = el.className.split(' ');
+                        className = S.String.trim(className);
+                        if(c = classNames.indexOf(className)){
+                            classNames.splice(c,1);
+                        }
+                        el.className = classNames.join(' ');
+                    }
+                }
+            })(),
+            hasClass = (function(){
+                if(isClassList){
+                    return function(el,className){
+                        el.classList.contains(className)
+                    }
+                }
+                return function(el,className){
+                    return new RegExp("\\s*"+ className + "\\s*").test(el.className);
+                }
+            })(),
+            toggleClass =  (function(){
+                if(isClassList){
+                    return function(el,className){
+                        el.classList.toggle(className)
+                    }
+                }
+                return function(el,className){
+                    if(hasClass(el,className))
+                        removeClass(el,className);
+                    else
+                        addClass(el,className);
+                }
+            })();
+
+            S.fn.extend({
+
+                addClass: function(className){
+                    this.each(function(el){
+                        addClass(el,className);
+                    });
+                    return this;
+                },
+                hasClass: function(className){
+                    this.each(function(el){
+                        hasClass(el,className);
+                    })
+                    return this;
+                },
+                removeClass: function(className){
+                    this.each(function(el){
+                        removeClass(el,className)
+                    })
+                    return this;
+                },
+                toggleClass: function(className){
+                    this.each(function(el){
+                        toggleClass(el,className)
+                    })
+                    return this;
+                }
+            })
+        })(Screen);
+    })(Screen)
     window.S = window.Screen = Screen;
 })(this);

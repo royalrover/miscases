@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        .a{width:0;height:0;border-color: #aaa #aa0000 #b1e264 #c09853;border-style:solid;border-width:1px 2px 3px 4px;border-radius: 50%;
+            position: absolute;
+            top: 0%;
+            right: 0%;
+            bottom: 0%;
+            left: 0%;
+            margin:auto;
+            padding: 15%;
+            -webkit-animation: loading 2s ease-in infinite;
+        }
+        @-webkit-keyframes loading {
+            from {-webkit-transform: rotate(0deg);}
+            to {-webkit-transform: rotate(360deg);}
+        }
+    </style>
+</head>
+<body>
+    <div class="a" style="display: none;"></div>
+    <div style="width:400px;height:400px;background: #b1e264;">
+        <div style="float:left;height:50%;width:0;margin-bottom: -200px;"></div>
+        <link type="text/css" rel="stylesheet" href="../../css/moon.lib.css">
+        <script>
+            function sleep(m){
+                var d = new Date().getTime();
+                while(true){
+                    if(new Date().getTime() - d >= m)
+                    return;
+                }
+            }
+            sleep(3000);
+        </script>
+        <link type="text/css" rel="stylesheet" href="../../css/style.css">
+        <div style="clear:both;height:100px;position: relative;">content here</div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <div id='d' style="position: absolute;left:0;top:0;width:200px;height:200px;background: red;"></div>
+    <script>
+        var Drag = {
+            // 拖拽元素
+            obj: null,
+            //el: 拖拽元素
+            //minX: X轴最小边界
+            //minY: Y轴最小边界
+            //maxX: X轴最大边界
+            //maxY: X轴最大边界
+            init: function(el,minX,maxX,minY,maxY){
+                this.obj = el;
+                if(isNaN(this.getLocation().x))
+                    this.obj.style.left = '0px';
+                if(isNaN(this.getLocation().y))
+                    this.obj.style.top = '0px';
+
+                this.obj.onmousedown = function(e){
+                    Drag.start.call(el,e);
+                };
+                this.obj.minX = minX;
+                this.obj.minY = minY;
+                this.obj.maxX = maxX;
+                this.obj.maxY = maxY;
+
+
+            },
+            start: function(e){
+                e = Drag.fixEvent(e);
+                this.inDOMLocation = {
+                    x: e.layerX,
+                    y: e.layerY
+                };
+                this.oldLocation = {
+                    x: e.clientX,
+                    y: e.clientY
+                };
+                //设定鼠标的移动范围
+                if(this.minX)
+                    this.minMouseX = e.layerX + this.minX;
+                if(this.minY)
+                    this.minMouseY = e.layerY + this.minY;
+                if(this.maxX)
+                    this.maxMouseX = this.maxX - (this.offsetWidth - (parseInt(this.clientLeft) || 0) - e.layerX)
+                if(this.maxY)
+                    this.maxMouseY = this.maxY - (this.offsetHeight - (parseInt(this.clientTop) || 0) - e.layerY)
+
+                this.onmousemove = function(e){
+                    Drag.drag.call(Drag.obj,e);
+                };
+                this.onmouseup = function(e){
+                    Drag.stop.call(Drag.obj,e);
+                };
+            },
+            drag: function(e){
+                e = Drag.fixEvent(e);
+                var newLocation = {
+                    x: e.clientX,
+                    y: e.clientY
+                }, x,y;
+                x = newLocation.x;
+                y = newLocation.y;
+                if(this.minMouseX)
+                    x = Math.max(this.minMouseX,newLocation.x)
+                if(this.minMouseY)
+                    y = Math.max(this.minMouseY,newLocation.y)
+                if(this.maxMouseX)
+                    x = Math.min(this.maxMouseX,x)
+                if(this.maxMouseY)
+                    y = Math.min(this.maxMouseY,y)
+
+                this.style.left = Drag.getLocation().x + (x - this.oldLocation.x) + 'px';
+                this.style.top = Drag.getLocation().y + (y - this.oldLocation.y) + 'px';
+                this.oldLocation = {
+                    x: x,
+                    y: y
+                }
+                return;
+            },
+            stop: function(){
+                this.oldLocation = null;
+                this.inDOMLocation = null;
+                this.onmouseup = this.onmousemove = null
+            },
+            fixEvent: function(e){
+                e = e || window.event;
+                if(!e.layerX)
+                    e.layerX = e.offsetX;
+                if(!e.layerY)
+                    e.layerY = e.offsetY;
+                if(!e.pageX)
+                    e.pageX = e.clientX + document.body.scrollLeft - document.body.clientLeft;
+                if(!e.pageY)
+                    e.pageY = e.clientY + document.body.scrollTop - document.body.clientTop;
+
+                return e;
+            },
+            getLocation: function(){
+                var location = {},style;
+                if(window.getComputedStyle){
+                    style = window.getComputedStyle(this.obj,'');
+                    location.x = parseInt(style.getPropertyValue('left'));
+                    location.y = parseInt(style.getPropertyValue('top'));
+                }else{
+                    style = this.obj.currentStyle;
+                    location.x = parseInt(style['left']);
+                    location.y = parseInt(style['top']);
+                }
+                return location;
+            }
+        }
+
+        Drag.init(document.getElementById('d'),20,500,30,500)
+    </script>
+</body>
+</html>

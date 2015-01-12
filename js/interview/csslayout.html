@@ -1,0 +1,33 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body{position:relative;}
+        #content{margin-left:340px;width:500px;height:440px;background-color:#f00;}
+        #sidebar_top{margin:0 10px;width:300px;height:200px;background-color:#0f0;float:left;}
+        #sidebar_bottom{width:300px;height:200px;background-color:#0f0;position:absolute;top:240px;left:10px;zIndex:3;}
+    </style>
+</head>
+<body>
+<div id="sidebar_top"></div>
+<!-->
+<div id="content"><div id="sidebar_bottom"></div></div>
+</body>
+<script type="text/javascript">
+    var oLt = document.getElementById("sidebar_top");
+    var owidth = oLt.clientWidth;
+    var oheight = oLt.clientHeight;
+    oLt.onmouseover = function() {
+        this.style.width = owidth*(1+0.25) + "px";
+        this.style.height = oheight*(1+0.25) + "px";
+        this.style.zIndex=3;
+    }
+    oLt.onmouseout = function() {
+        this.style.width = owidth + "px";
+        this.style.height = oheight + "px";
+        this.style.zIndex=0;
+    }
+</script>
+</html> 

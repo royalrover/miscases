@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <script>
+        function A(){
+            this.name = 'a';
+        }
+        A.Child = function(){
+            this.name = 'child';
+        }
+        A.Child.prototype = new A();
+        console.log(A.Child.prototype)
+
+        for(var i= 0;i<5;i++){
+            document.onclick = (function(i){
+                return function(){
+                    console.log(i)
+                }
+            })(i);
+
+        }
+    </script>
+</body>
+</html>

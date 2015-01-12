@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>异步加载</title>
+</head>
+<body>
+    <p style="text-decoration: blink;">abc blink</p>
+    <p style="width:45px;">
+            abcabcacbcdcdcdcdcdcdccdcdcdcdcdcdcd
+    </p>
+    <p style="width:25px;">
+        <span style="line-height: 20px;background: #c0c0c0;opacity: 0.5;">
+            abcabcacb
+        </span>
+        <span style="line-height: 20px;background: #c0c0c0;opacity: 0.5;">
+            cdcdcdcdcdcdc
+        </span>
+    </p>
+    <script>
+        if(!asyncHelper) var asyncHelper = {};
+        asyncHelper.cache = []; //存储获取到的js对象
+
+        asyncHelper.createAjax = (function(){
+            if('XMLHttpRequest' in window){
+                return function(){
+                    return new XMLHttpRequest();
+                }
+            }else{
+                var i= 0,len, fns = [function(){return new ActiveXObject('Microsoft.XMLHTTP')},function(){return new ActiveXObject('Msxml2.XMLHTTP')},
+                    function(){return new ActiveXObject('Msxml2.XMLHTTP.3.0')},function(){return new ActiveXObject('Msxml2.XMLHTTP.6.0')}];
+
+                for(len = fns.length;i<len;i++){
+                    try{
+                        fns[i]();
+                        return fns[i];
+                        break;
+                    }catch (e){
+                    }
+                }
+            }
+        })();
+        //功能函数，异步xhr加载js，并行无序加载js和其他资源，需要进行顺序控制；而且受同源限制，
+        //无法使用cdn或外部引用js
+        asyncHelper._loadJsWithXHR = function(url,fn,inOrder){
+            inOrder = inOrder || true; //默认顺序加载
+            var jsObj = {file: null,isLoaded:false,callback: fn},xhr,
+                    i,len;
+            asyncHelper.cache.push(jsObj);
+            xhr = this.createAjax();
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState == 4){
+                    try{
+                        if(xhr.status >=200 && xhr.status < 300 || xhr.status == 304){
+                            jsObj.file = xhr.responseText; // 返回的js存入对象中
+                            if(inOrder){
+                                for(i=0,len=asyncHelper.cache.length;i<len;i++){
+                                    if(!asyncHelper.cache[i].file){
+                                        //避免重复解析已加载过得js文件
+                                        //从缓冲汇总删除已经加载的文件
+                                        if(i>0){
+                                            asyncHelper.cache.splice(0,i);
+                                        }
+                                        break;
+                                    }else{
+                                        //Function相当于全局eval，不会改变作用域链
+                                        new Function(asyncHelper.cache[i].file)();
+                                        fn && fn(); //执行回调函数
+                                        if(i == len-1){
+                                            asyncHelper.cache = []; //清空缓存
+                                        }
+                                    }
+                                }
+                            }else{
+                                if(jsObj.file){
+                                    eval(jsObj.file);
+                                    fn();
+                                }
+                            }
+                        }
+                    }catch (loadError){
+                        setTimeout(function(){
+                            throw(new Error('loading with XHR response error--' + loadError))
+                        },0);
+                    }
+
+                }
+            };
+            xhr.open('get',url);
+            xhr.setRequestHeader('X-Request-With','XMLHttpRequest');
+            xhr.send(null);
+        };
+
+        //通过创建script元素来异步加载js，支持跨域。在firefox，opera下也是顺序加载。
+        asyncHelper._loadJsWithDOMElement = function(url,fn){
+            var dom = document.createElement('script');
+            dom.type = 'application/javascript';
+            dom.async = false;
+            dom.src = url;
+            dom.isloaded = false;
+            //执行回调函数,IE下使用onreadystatechange,w3c使用onload
+            if('onload' in dom){
+                if(fn)
+                    dom.onload = fn;
+            }else{
+                dom.onreadystatechange = function(){
+                    if((dom.readyState == 'loaded' || dom.readyState == 'complete') &&
+                            !dom.isloaded){
+                        if(fn)
+                            fn();
+                        dom.isloaded = true;
+                    }
+                }
+            }
+            document.getElementsByTagName('head')[0].appendChild(dom);
+        }
+
+        //通过document.write插入script来进行并行加载脚本。gte IE8以及opera支持。
+        //全部浏览器支持此种方式的顺序加载js
+        asyncHelper._loadJsWithScriptTag = function(url,fn){
+            document.writeln('<script type="application/javascript" src="' +
+                url +'"><\/script>');
+            //给window绑定onload事件
+            if(window.addEventListener){
+                if(fn)
+                    window.addEventListener('load',fn,false);
+            }else{
+                if(fn)
+                    window.attachEvent('onload',function(){
+                    fn.call(this,window.event);
+                })
+            }
+        }
+
+        //暴露外部接口，加载单个js文件
+        asyncHelper.loadScript = function(url,fn){
+            this._loadJsWithDOMElement(url,fn);
+        }
+
+        //加载多个js文件
+        asyncHelper.loadScripts = function(urls,fn){
+            function isSameDomain(url){
+                var domain = document.location.protocol + "//" +
+                        document.location.hostname + "/";
+                if(url.indexOf('http') !== -1 || url.indexOf('https') !== -1){
+                    if(url.indexOf(domain) !== -1){
+                        return true;
+                    }
+                    return false;
+                }
+                return true;
+            }
+
+            //如果url同源，则使用xhr加载
+            var i,len,flag,loadMethod;
+            for(i=0,len=urls.length;i<len;i++){
+                if(flag = isSameDomain(urls[i])) continue;
+                else break;
+            }
+            //默认xhr加载
+            loadMethod = asyncHelper._loadJsWithXHR;
+            if(!flag){
+                //firefox opera使用DomElement方式加载，确保顺序性和异步加载
+                // 经测试，目前最新版本的Firefox亦不支持此特性。
+                //Firefox 4为了更向HTML5标准看齐，一度在开发者版本中去掉了对动态创建<script>来加载js文件的执行顺序支持：
+                //<script> elements created using document.createElement() and inserted into a document now behave
+                // according to the HTML5 specification by default. Scripts with the src attribute
+                // execute as soon as available (without maintaining ordering) and scripts without
+                // the src attribute execute synchronously.
+
+                //Kyle向WebKit开发团队抗议，提了一个bug，最终得到了如他所愿的支持：
+                //To make script-inserted scripts that have the src attribute execute in the insertion order,
+                // set .async=false on them.
+                if(navigator.userAgent.toLowerCase().indexOf('firefox') != -1 || navigator.userAgent.toLowerCase().indexOf('opera') != -1)
+                    loadMethod = asyncHelper._loadJsWithDOMElement;
+                else
+                    loadMethod = asyncHelper._loadJsWithScriptTag;
+
+            }
+        //    loadMethod = asyncHelper._loadJsWithDOMElement;
+            for(i=0;i<len;i++){
+                if(i == len - 1){
+                    loadMethod.call(asyncHelper,urls[i],fn);
+                }else{
+                    loadMethod.call(asyncHelper,urls[i]);
+                }
+            }
+        }
+
+        asyncHelper.loadScripts(['http://libs.baidu.com/jquery/1.9.0/jquery.js','./a.js','./b.js'],function(){alert('success')})
+
+    </script>
+</body>
+</html>

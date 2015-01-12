@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>scroll video</title>
+    <style>
+        html{height:2000px;}
+        div{width: 500px;margin:40px auto;}
+    </style>
+</head>
+<body>
+<a href='javascript: var input,ret;
+    do{
+        input = prompt("input \n ret ",input);
+        try{
+            ret = eval(input);
+        }catch (e){
+            ret = e;
+        }
+        console.log(ret);
+    }while(input);
+    void 0;'>time:</a>
+<a href='javascript: var q;
+    /*获取Selection对象*/
+    if(window.getSelection) q = window.getSelection().toString();
+    else q = document.selection.text;
+    void window.open("http://www.baidu.com/s?word="+q);
+    '>Search In Baidu</a>
+<div>
+    <video id="v" controls="controls" src="a.mp4" width="500" height="300"></video>
+</div>
+<script src="../drag/drag.js"></script>
+<script>
+    function $(i){return document.getElementById(i)}
+    var v = $("v");
+    function fixScrollEvent(el,fn,context){
+        var type = "mousewheel";
+        context = context || window;
+        try{
+            document.createEvent("MouseScrollEvents");
+            type = "DOMMouseScroll";
+        }catch(e){}
+        if(type == "mousewheel"){
+            el.onmousewheel = function(e){
+                e = e || window.event;
+                if(window.opera && window.opera.version()<10){
+                    e.delta = -e.wheelDelta / 30;
+                }else{
+                    e.delta = e.wheelDelta / 30;
+                }
+                fn.call(context,e);
+            }
+        }else{
+            el.addEventListener("DOMMouseScroll",function(e){
+                e.delta = -e.detail;
+                fn.call(context,e);
+            },false)
+        }
+    }
+
+    fixScrollEvent(window,function(e){
+        var dh,cp;
+        var c, d,graphic;
+        var imageData;
+        //视口宽度和高度
+        var vpWidth = window.innerWidth || document.documentElement.clientWidth
+                || document.body.clientWidth;
+        var vpHeight = window.innerHeight || document.documentElement.clientHeight
+                || document.body.clientHeight;
+        cp = v.getBoundingClientRect();
+        dh = cp.top + v.scrollTop + v.clientHeight;
+
+        c = $("miniVideo");
+        if(dh < document.documentElement.scrollTop){
+            if(c){
+                c.setAttribute("data-flag",1);
+                c.style.display = "";
+            }else{
+                c = document.createElement("canvas");
+                c.id = "miniVideo";
+                // Drag 拖动插件必须要确定top和left值，不能使用right和bottom代替。
+                c.style.cssText = "width:300px;height:200px;background:black;position:fixed;" +
+                        "left:"+(vpWidth - 30 - 300)+"px;top:"+(vpHeight - 20 - 200)+"px;";
+                c.setAttribute("data-flag",1);
+                if(c.innerText !== undefined){
+                    c.innerText = "Your Browser can not support Canvas!";
+                }else{
+                    c.textContent = "Your Browser can not support Canvas!";
+                }
+                document.body.appendChild(c);
+                new Drag(c)
+
+            }
+            requestAnimationFrame(function recurse(){
+                graphic = c.getContext("2d");
+                graphic.drawImage(v,0,0, c.width, c.height);
+                if(c.getAttribute("data-flag")){
+                    requestAnimationFrame(recurse);
+                }
+            })
+        }else{
+            if(c){
+                //设置空字符串，之前犯了个错误，在html property保存的始终是字符串。
+                c.setAttribute("data-flag","");
+                c.style.display = "none";
+            }
+        }
+    })
+
+</script>
+</body>
+</html>

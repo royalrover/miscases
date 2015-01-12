@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Scratch area</title>
+    <style>
+        #canvas{width:300px;height:400px;}
+        #area{width:300px;height:400px;background: url("../../img/1.jpg") no-repeat;}
+    </style>
+</head>
+<body>
+    <div id="area">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        var c = document.getElementById('canvas'),
+                g = c.getContext('2d'),
+                l = c.getBoundingClientRect();
+        g.save();
+        g.fillStyle = '#999';
+        g.fillRect(0,0,300,400);
+        g.restore();
+        g.beginPath()
+        g.arc(50,50,15,0,2*Math.PI,false)
+        g.fill();
+        g.closePath();
+        c.addEventListener('mousedown',function(e){
+  //          c.addEventListener('mousemove',function(e){
+                g.beginPath();
+                g.fillStyle = '#900'; console.log(e)
+     //           g.arc(e.clientX- l.left, e.clientY- l.top,15,0,2*Math.PI);
+     //       g.arc(50,50,15,0,2*Math.PI,false)
+                g.arc(e.offsetX, e.offsetY,15,0,2*Math.PI,false)
+                g.fill();
+                g.closePath();
+  //          },false);
+        })
+        c.addEventListener('touchstart',function(){
+            c.addEventListener('touchmove',function(e){
+                g.beginPath();
+                g.fillStyle = '#900';
+                g.arc(e.targetTouches[0].clientX, e.targetTouches[0].clientY,15,0,2*Math.PI);
+                g.fill();
+                g.closePath();
+            },false);
+        },false)
+    </script>
+</body>
+</html>
