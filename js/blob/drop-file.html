@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>drop file</title>
+    <style>
+        .active{background: 1px firebrick;}
+        .droptarget{border:3px solid royalblue;width:400px;height:400px;margin: auto;float:left;}
+    </style>
+</head>
+<body>
+    <div class="droptarget" id="droptarget"></div>
+    <div style="float:left;margin-left:20px;" id="show"></div>
+    <script>
+        var createUrl = URL && URL.createObjectURL ||
+                window.webkitURL && window.webkitURL.createObjectURL ||
+                window.createObjectURL;
+        var revokeUrl = URL && URL.revokeObjectURL ||
+                window.webkitURL && window.webkitURL.revokeObjectURL ||
+                window.revokeObjectURL;
+        function $(id){return document.getElementById(id)}
+
+        $("droptarget").ondragenter = function(e){
+            var dt = e.dataTransfer;
+            //过滤文件
+            if(dt.types && dt.types.indexOf("Files") != -1){
+                this.classList.add("active");
+            }
+            return false;
+        };
+        $("droptarget").ondragleave = function(e){
+            this.classList.remove("active");
+        };
+        $("droptarget").ondragover = function(e){
+            return false;
+        }
+        $("droptarget").ondrop = function(e){
+            e.preventDefault();
+            var dt = e.dataTransfer;
+            var files,i,len,f;
+            var img,show = $("show");
+            files = dt.files;
+            for(i=0,len=files.length;i<len;i++){
+                f = files[i];
+                if(f.type.indexOf("image/") == -1) break;
+                img = new Image();
+                img.style.width = "400px";
+                img.src = createUrl(f);
+                img.onload = function(e){
+                    show.innerHTML = "";
+                    show.appendChild(img);
+                    revokeUrl(img.src);
+                }
+            }
+            this.classList.remove("active")
+            return false;
+        }
+
+        // 可以使用FileReader异步对Blob对象的数据进行修改
+        function read(blob){
+            var r = new FileReader();
+            r.readAsText(blob);
+            r.onload = function(e){
+                var d = r.result;
+            }
+            r.onerror = function(e){
+                console.log("error happens...")
+            }
+            r.onprogress = function(e){
+                $("droptarget").innerText = e.loaded + "/" + e.total;
+            }
+        }
+    </script>
+</body>
+</html>

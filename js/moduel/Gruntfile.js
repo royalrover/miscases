@@ -1,9 +1,12 @@
 module.exports = function(grunt){
 
     grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
         transport : {
             options : {
-                format : 'src/{{filename}}'  //在压缩文件中生成的id的格式
+                format : 'dist/{{filename}}',  //在压缩文件中生成的id的格式
+                alias: '<%= pkg.spm.alias %>',
+                base: '<%= pkg.spm.base %>'
             },
             application : {
                 files : {
@@ -38,6 +41,6 @@ module.exports = function(grunt){
     grunt.loadNpmTasks('grunt-cmd-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-clean');
-
+// 默认被执行的任务列表。
     grunt.registerTask('build',['transport','concat','uglify','clean'])
 };

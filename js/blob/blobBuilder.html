@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <img>
+    <script id="s">
+       /* var bb = new BlobBuilder();
+        bb.append("yang li is tanGer's husband;")
+        bb.append("\0");
+        var ab = new ArrayBuffer(8);
+        var dv = new DateView(ab);
+        for(var i=0;i<8;i++) dv.setInt8(i,i);
+        bb.append(ab);
+        var ret = bb.getBlob("x-op\/mytype")
+        console.log(ret,ret.type);*/
+       var ab = new ArrayBuffer(8);
+       var dv = new DataView(ab);
+       for(var i=0;i<8;i++) dv.setInt8(i,i);
+       var arr = ["yang li is tanGer's husband;",ab];
+       var b = new Blob(arr,{type: "application/octet-binary"});
+       console.log(b, b.type)
+
+       var s = document.getElementById("s")
+       console.log(s.text)
+    </script>
+</body>
+</html>

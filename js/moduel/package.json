@@ -2,6 +2,12 @@
      "name" : "HelloSeaJS",
      "version" : "1.0.0",
      "author" : "yang li",
+     "spm": {
+        "base": "./gallery",
+        "alias": {
+            "jquery": "jquery/jquery-1.11.1"
+        }
+     },
      "devDependencies" : {
           "grunt" : "0.4.1",
           "grunt-cmd-transport" : "0.1.1",

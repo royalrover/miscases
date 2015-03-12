@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        pre code{font:14px/22px Helvetica, sans-serif ;}
+        .wrap{position: relative;width: 200px;height:200px;border-radius: 50%;background: #CCFFFF;text-align: center;}
+        .right-part{width:200px;height: 200px;position: absolute;clip:rect(0px,auto,auto,100px)}
+        .right{width: 200px;height:200px;position: absolute;border-radius: 50%;background: #003366;
+            clip:rect(0px,auto,auto,100px);}
+        .r-shadow{width: 150px;height:150px;border-radius: 50%;background: #fff;position: absolute;
+            left:25px;top:25px;}
+
+        .left-part{width:200px;height: 200px;position: absolute;clip:rect(0px,100px,auto,0px)}
+        .left{width: 200px;height:200px;position: absolute;border-radius: 50%;background: #003366;
+            clip:rect(0px,100px,auto,0px);}
+        .l-shadow{width: 150px;height:150px;border-radius: 50%;background: #fff;position: absolute;
+            left:25px;top:25px;}
+        #desc{display:inline-block;width:200px;height:200px;line-height: 200px;font-size: 56px;position: absolute;
+            left:0;}
+    </style>
+    <link rel="stylesheet" href="http://yandex.st/highlightjs/8.0/styles/solarized_dark.min.css">
+</head>
+<body>
+<div class="wrap">
+    <div class="right-part">
+        <div class="right" id="right"></div>
+        <div class="r-shadow"></div>
+    </div>
+    <div class="left-part">
+        <div class="left" id="left"></div>
+        <div class="l-shadow"></div>
+    </div>
+    <span id="desc">ad</span>
+</div>
+<pre>
+    function progressBar(percentage){
+    var p = Math.round(percentage * 100);
+    var deg = p * 3.6;
+    var right = document.getElementById("right"),
+    left = document.getElementById("left"),
+    desc = document.getElementById("desc");
+    if(p > 100 || p < 0) p = 100;
+    if(deg <= 180){
+    right.style.cssText = "transform:rotate("+(deg-180)+"deg);"
+    left.style.cssText = "background:#CCFFFF;"
+    }else{
+    right.style.cssText = "transform:none;"
+    left.style.cssText = "background:#003366;transform:rotate("+(deg-360)+"deg);"
+    }
+    if(desc.innerText){
+    desc.innerText = p+"%"
+    }
+    if(desc.textContent){
+    desc.textContent = p+"%";
+    }
+    }
+    var g = 0;
+    setTimeout(function _a(){
+    if(g>1)return;
+    progressBar(g);
+    g += 0.1
+    setTimeout(_a,1000)
+    },1000)
+</pre>
+<script>
+    function progressBar(percentage){
+        var p = Math.round(percentage * 100);
+        var deg = p * 3.6;
+        var right = document.getElementById("right"),
+                left = document.getElementById("left"),
+                desc = document.getElementById("desc");
+        if(p > 100 || p < 0) p = 100;
+        if(deg <= 180){
+            right.style.cssText = "transform:rotate("+(deg-180)+"deg);"
+            left.style.cssText = "background:#CCFFFF;"
+        }else{
+            right.style.cssText = "transform:none;"
+            left.style.cssText = "background:#003366;transform:rotate("+(deg-360)+"deg);"
+        }
+        if(desc.innerText){
+            desc.innerText = p+"%"
+        }
+        if(desc.textContent){
+            desc.textContent = p+"%";
+        }
+    }
+    var g = 0;
+    setTimeout(function _a(){
+        if(g>1)return;
+        progressBar(g);
+        g += 0.1
+        setTimeout(_a,1000)
+    },1000)
+</script>
+<script>
+    var pres = document.getElementsByTagName("pre"),
+            frag = document.createDocumentFragment(),
+            pre,code, i,len;
+    var styleSheets = document.styleSheets,sheet;
+    for(i=0,len=styleSheets.length;i<len;i++){
+        sheet = styleSheets[i];
+        if(sheet.href && sheet.href.indexOf("/bundles/blog-common.css") != -1){
+            sheet.disabled = true;
+            break;
+        }
+    }
+    for(i=0,len=pres.length;i<len;i++){
+        pre = pres[i];
+        (function(pre){
+            setTimeout(function(){
+                while(pre.firstChild){
+                    frag.appendChild(pre.firstChild);
+                }
+                pre.innerHTML = "<code></code>";
+                code = pre.getElementsByTagName("code")[0];
+                code.appendChild(frag);
+            },1)
+        })(pre)
+    }
+</script>
+<script src="http://yandex.st/highlightjs/8.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</body>
+</html>

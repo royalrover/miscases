@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <a href="jsDeferred.html"></a>
+    <script>
+        var f = function(fn){
+            var id = setTimeout(function(){
+                clearTimeout(id);
+    //            console.log("clear")
+            },0);
+
+            f.clear = function(){
+                try{
+                    clearTimeout(id)
+                }catch(e) {}
+            }
+   //         console.log('here')
+        }
+        f();
+        f.clear()
+
+        for(var i =0;i<3;i++){
+            (function(i){
+                setTimeout(function(){
+     //               console.log(i)
+                },1000)
+            })(i)
+        }
+//        console.log('over...')
+
+        alert(document.getElementsByTagName('a')[0].getAttribute("href",4)+"  "+document.getElementsByTagName('a')[0].href)
+    </script>
+</body>
+</html>

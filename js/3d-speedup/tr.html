@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style id="ss">
+        .t{-webkit-transition: left 5s ;}
+        @-webkit-keyframes abc {
+            0% {color: black;}
+            to {color: red;}
+        }
+    </style>
+</head>
+<body>
+    <div id="t" class="t" style="border: 1px solid black;width:200px;height:200px;position:absolute;left:0;"></div>
+    <button id="c">取消动画</button>
+    <script>
+        var t = document.getElementById("t"),
+                c = document.getElementById("c");
+        t.onclick = function(){
+            t.style.left = parseInt(t.style.left) + 40+"px";
+        }
+        c.onclick = function(){
+            t.style['webkit-transition'] = "none";
+            t.style.left = getComputedStyle(t).left;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <iframe id="f"></iframe>
+    <script>
+        function Sandbox(){
+            if(!(this instanceof Sandbox)) return new Sandbox();
+            this.modules = {};
+        }
+        Sandbox.prototype = {
+            add: function(){
+                var args = [].slice.call(arguments);
+                var that = this;
+                if(args.length == 2 && typeof args[0] == "string" && typeof args[1] == "function"){
+                    this.modules[args[0]] = function(){
+                        args[1].call(that,that);
+                    }
+                }else{
+                    throw SyntaxError("arguments should be an string token and a function...")
+                }
+            },
+            use: function(){
+                var args = [].slice.call(arguments),
+                        modules = this.modules;
+                var that = this, i,len;
+                var fn = args.pop();
+                args = typeof args[0] == "string" ? args : args[0];
+                if(args.length == 0 || args[0] == "*" ){
+                    args = modules;
+                }
+                for(i=0,len=args.length;i<len;i++){
+                    if(modules[args[i]]){
+                        modules[args[i]]();
+                    }else
+                        continue;
+                }
+                fn(this);
+            }
+        }
+
+        function fn1(s){s.say = function(){console.log("f1...");}}
+        function fn2(s){s.speak = function(){console.log("f2...")}}
+        function fn3(){console.log("f3...")}
+
+        var s = Sandbox();
+        s.add("f1",fn1);
+        s.use("f1",function(s){
+            s.say();
+            var ss = Sandbox();
+            ss.add("f2",fn2);
+            ss.use("f2",function(s){
+                s.speak();
+            })
+        })
+
+        var f = document.getElementById("f");
+        f.style.display = "none"
+        f.contentDocument.write("<script>parent.sandbox = function(s){eval(s)}<\/script>")
+        sandbox("a=3")
+    </script>
+</body>
+</html>

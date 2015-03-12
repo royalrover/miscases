@@ -1,0 +1,19 @@
+<!doctype html>
+<html ng-app>
+<head>
+    <script src="angular-1.2.19.js"></script>
+</head>
+<body ng-controller="H">
+Your name: <input type="text" ng-model="yourname" placeholder="World">
+<button ng-click="c()">click me</button>
+<hr>
+{{greet}}
+<script>
+    function H($scope){
+        $scope.c = function(){
+            $scope.greet = "Hello" + $scope.yourname;
+        }
+    }
+</script>
+</body>
+</html>

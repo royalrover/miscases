@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>爆炸效果的轮播</title>
+    <style>
+        body{margin: 0;padding: 0;overflow: hidden;}
+        .wrap{width: 560px;margin:30px auto;border: 10px solid #000000;}
+        .win{position: relative;perspective:none;}
+        .segment{transform-style: preserve-3d;}
+        .segment p{margin:0;padding:0;position:absolute;width:140px;height:100px;background: url(img/0.jpg)}
+        .container{height: 300px;}
+        .shadow{height:100%;width:100%;position: absolute;left:0;top:0;box-shadow: inset 0 0 40px;}
+        .tools{margin: 0;padding: 0;list-style: none;position: absolute;right:30px;bottom: 20px;}
+        .tools li{float: left;margin-right:20px;}
+        .btn>a:nth-child(1){display:block;width:45px;height:45px;background: url(./img/icons.png) 0 0 no-repeat;position: absolute;left:10px;top:135px;}
+        .btn>a:nth-child(2){display:block;width:45px;height:45px;background: url(./img/icons.png) 0 -45px no-repeat;position: absolute;right:10px;top:135px;}
+        .win .fly p{opacity: 0;}
+        .win .fly p:nth-child(1){transform: rotateX(30deg) rotateY(10deg) translateZ(500px);}
+        .win .fly p:nth-child(2){transform: rotateX(330deg) rotateY(10deg) translateZ(500px);}
+        .win .fly p:nth-child(3){transform: rotateX(3450deg) rotateY(10deg) translateZ(500px);}
+        .win .fly p:nth-child(4){transform: rotateX(-30deg) rotateY(-10deg) translateZ(500px);}
+        .win .fly p:nth-child(5){transform: rotateX(330deg) rotateY(10deg) translateZ(500px);}
+        .win .fly p:nth-child(6){transform: rotateX(40deg) rotateY(20deg) translateZ(500px);}
+        .win .fly p:nth-child(7){transform: rotateX(340deg) rotateY(10deg) translateZ(500px);}
+        .win .fly p:nth-child(8){transform: rotateX(3450deg) rotateY(60deg) translateZ(500px);}
+        .win .fly p:nth-child(9){transform: rotateX(230deg) rotateY(10deg) translateZ(500px);}
+        .win .fly p:nth-child(10){transform: rotateX(20deg) rotateY(20deg) translateZ(500px);}
+        .win .fly p:nth-child(11){transform:rotateX(30deg) rotateY(10deg) translateZ(500px);}
+        .win .fly p:nth-child(12){transform: rotateX(10deg) rotateY(15deg) translateZ(500px);}
+        .tools .current{background: url(./img/icons.png) -8px -125px no-repeat;}
+        .tools li{background: url(./img/icons.png) -23px -125px;width: 15px;height: 15px;}
+    </style>
+    <script src="../vendor/jquery-1.11.1.js"></script>
+    <script>
+        $(function(){
+            var ps = $("p",".segment"), p, c,m;
+            var pic = $("#pic"),left = $("#left"),
+                    right = $("#right");
+            var counter = 0;
+            var lis = $(".tools li");
+            // 将图片区域分成12个片段
+            function slice(){
+                for(var i=0;i<12;i++){
+                    c = Math.floor(i / 4);
+                    m = i % 4;
+                    p = $(ps[i]);
+                    p.css({
+                        left: m*140+"px",
+                        top: c*100+"px"
+                    });
+                    p.css("background-position",-m*140+"px "+ (-c*100)+"px");
+                }
+            }
+            slice();
+            // 设置渐进和背景图片
+            function coo(){
+                $(".segment").addClass("fly");
+                $(".segment p").css("transition","all 1s ease 0s");
+                pic.attr("src","./img/"+counter+".jpg");
+                setTimeout(function(){
+                    $(".segment p").css({
+                        "transition":"none",
+                        "background-image": "url(img/"+counter+".jpg)"
+                    });
+                    $(".segment").removeClass("fly");
+                },1000)
+
+            }
+            left.click(function(e){
+                if(counter == 0){
+                    counter = 4;
+                }else{
+                    counter--;
+                }
+                coo();
+                $.each(lis,function(li){
+                    $(lis[li]).removeClass("current");
+                });
+                $(lis[counter]).addClass("current");
+            });
+            right.click(function(){
+                if(counter == 4){
+                    counter = 0;
+                }else{
+                    counter++;
+                }
+                coo();
+                $.each(lis,function(li){
+                    $(lis[li]).removeClass("current");
+                });
+                $(lis[counter]).addClass("current");
+            })
+        })
+    </script>
+</head>
+<body>
+    <div class="wrap">
+        <div class="win">
+            <div class="segment">
+                <p></p>
+                <p></p>
+                <p></p>
+                <p></p>
+                <p></p>
+                <p></p>
+                <p></p>
+                <p></p>
+                <p></p>
+                <p></p>
+                <p></p>
+                <p></p>
+            </div>
+            <div class="container">
+                <img id="pic" src="./img/0.jpg">
+            </div>
+            <div class="shadow"></div>
+            <div class="btn">
+                <a id="left" href="javascript:void 0"></a>
+                <a id="right" href="javascript:void 0"></a>
+            </div>
+            <ul class="tools">
+                <li class="current"></li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <img id="i" src="img.jpg">
+    <button id="btn">查看位置信息</button>
+    <script>
+        function $(i){return document.getElementById(i)}
+        var img = $("i"),
+                c= document.createElement("canvas"),ctx = c.getContext("2d");
+        var style = getComputedStyle(img,null);
+        var imageData,data;
+        img.onload = function(){
+            c.width = parseInt(style.width);
+            c.height = parseInt(style.height);
+            ctx.drawImage(img,0,0, c.width, c.height);
+            imageData = ctx.getImageData(0,0, c.width, c.height);
+            data = imageData.data;
+            var flag = false,location = {};
+            for(var i= 0,len=data.length;i<len;i+=4){
+                if(data[i] == 254 && data[i+1] == 0 && data[i+2] == 0 && data[i+3] == 255){
+                    location.x = (i % imageData.width)/4;
+                    location.y = Math.floor(i / imageData.width)/4;
+                    break;
+                }
+            }
+
+            var btn = $("btn");
+            btn.onclick = function(){
+                console.log(location.x,location.y)
+            }
+        }
+
+        /*for(var i=0,row=imageData.height;i<len; i++){
+            if(data[i] == 0xff && data[i+1] == 0x00 && data[i+2] == 0x00 && data[i+3] == 0xff){
+                for(var j=0,col=imageData.width;j<col;j++){
+
+                }
+                break;
+            }
+        }*/
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,590 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-cn">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>不要使用浏览器嗅探，尽量使用特性检测和特性模拟 - royalrover - 博客园</title>
+    <link type="text/css" rel="stylesheet" href="http://www.cnblogs.com/bundles/blog-common.css?v=d_Et_wtKX7bJcow-mLRlKv4wqGQ2rjNrWTPvZmUqF8Y1"/>
+    <link type="text/css" rel="stylesheet" href="http://www.cnblogs.com/blog/customcss/204605.css?v=%2bBdR%2fkDuUyBRl7eQ9Rkci0Vnafs%3d"/>
+    <link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/accordion/rss"/>
+    <link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/accordion/rsd.xml"/>
+    <link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/accordion/wlwmanifest.xml"/>
+    <script src="http://common.cnblogs.com/script/jquery.js" type="text/javascript"></script>
+    <script type="text/javascript">var currentBlogApp = 'accordion', cb_enable_mathjax=true;</script>
+    <script src="/bundles/blog-common.js?v=dVqr0ue7y29mRAG2afMkFcSk38ChENfNlXrmAf_YHQE1" type="text/javascript"></script>
+    <style>
+    *{
+        padding:0px;
+        margin:0px;
+    }
+    /*整体样式设置*/
+    body{
+        font-family:Arial, Helvetica, sans-serif;
+        font-size:15px;
+        margin:0px;padding:0px;
+        text-align:center;			/* 居中body中的div块，内容*/
+        background-color:#000;
+    }
+
+    a:link,a:visited{
+        color:#004a87;
+        text-decoration:none;
+    }
+    a:hover{
+        color:#00f;
+        text-decoration:underline;
+    }
+
+    #home{
+        margin:1px auto 0px auto; /*使得home快内容居中*/
+        width:1050px; /*在此修改为90%*/
+        background-color:#FFFFFF;
+        text-align:left; /*虽然home div快以及居中，但在此使得home中的内容为空*/
+        border-left:1px dashed #AAAAAA;		/* 添加虚线框 */
+        border-right:1px dashed #AAAAAA;
+        border-bottom:1px dashed #AAAAAA;
+    }
+
+    /*
+    ******头部开始*******
+    */
+    #header{
+        position:relative; /*为#navigator .blogStats的绝对定位提供参照点..*/
+    }
+    #blogTitle{
+        height:180px;
+        margin:0px; padding:10px 0px;
+        background: #000 url(http://images.cnblogs.com/cnblogs_com/accordion/629717/o_t2.jpg) repeat-x top left;
+        font-size:12px;
+        padding-left:40px;
+        color:#FFFFCC;
+    }
+    #blogTitle h1{color:#FFFFCC;font-size:25px;text-shadow:3px 3px 0;}
+    #blogTitle h2{
+        display:block;
+        padding-left:40px;
+        padding-top:20px;
+    }
+
+
+    /*隐藏img 中的logo图片，使其父级a转化为区块，设置背景图片来达到更换logo的目的*/
+    #lnkBlogLogo{
+        display:none;
+        width:200px;height:200px;
+        background-color:fuchsia;
+    }
+
+    /*隐藏logo图片，暂时用不到*/
+    #lnkBlogLogo img{
+        display:none;
+    }
+
+    #navigator{
+        background-color:#9ac7ff ;
+        height:30px;
+        padding:5px;
+        text-align:center;
+    }
+
+    #navList{ /*ul的样式*/
+        list-style-type:none;
+        padding:0px; margin:0px;
+        line-height:25px;
+        float:left;
+        margin-right:5px;
+        margin-top:3px;
+    }
+    #navList li{
+        float:left;
+        text-align:center;
+        padding:0px 10px;	/* 链接之间的距离 */
+    }
+    #navList a:link, #navList a:visited{
+        color:#004a87;
+        text-decoration:none;
+    }
+
+    #navList a:hover{
+        color:#FFFFFF;
+        text-decoration:underline;
+        font-size:14px;
+    }
+
+
+    /*脱离标准流，使得“随笔- 6  文章- 1  评论- 1”相对于#header来采用绝对定位*/
+    #navigator .blogStats{
+        color:white;
+        position:absolute;
+        top:180px;
+        right:10px;
+        float:right;
+        padding:0px; margin:0px;
+    }
+
+
+    /*
+    ******侧边开始*******
+    */
+
+    #sideBar{
+        float:left;
+        width:20%;
+        padding:0px;
+        margin:0px;
+    }
+
+    #sideBar div{
+        clear:both;
+        margin-top:25px;
+        position:relative;
+    }
+    #blog-news{
+        margin-top:0;
+    }
+    #profile_block{
+        padding-left:40px;
+        font-size:14px;
+    }
+    #calendar{
+        margin-top:16px;
+        text-align:center;
+    }
+    #blog-calendar table{
+        width:90%;
+        margin:0 auto;
+    }
+    #blog-calendar table td{
+        padding:2px;
+        font-weight:bold;
+    }
+    #blog-calendar .CalOtherMonthDay{
+        color:#999;
+    }
+
+    #sideBar div h3{					/* 统一设置 */
+        background:url(http://images.cnblogs.com/cnblogs_com/zghlx/WindowsLiveWriter/4219d446c994_11C0D/leftbg_2.jpg) no-repeat;
+        font-size:12px;
+        padding: 6px 0px 5px 27px;
+        margin:0px;
+    }
+
+    #sideBar div ul{
+        list-style:none;
+        margin:5px 15px 0px 15px;
+        padding:0px;
+    }
+    #sideBar div ul li{
+        padding:2px 3px 2px 15px;
+        background:url(icon1.gif) no-repeat 8px 7px;
+        border-bottom:1px dashed #999999;		/* 虚线作为下划线 */
+        margin:3px;
+    }
+
+    #sideBar div ul li a:link, #sideBar div ul li a:visited{
+        color:#000000;
+        text-decoration:none;
+    }
+    #sideBar div ul li a:hover{
+        color:#008cff;
+        text-decoration:underline;
+    }
+
+    .mySearch .div_my_zzk{
+        padding-left:30px;
+    }
+    #q,#google_q{
+        border:1px solid #A2CAED;
+        height:20px;
+        padding:2px;
+    }
+    .btn_my_zzk{
+        display: inline-block;
+        padding: 4px 12px;
+        margin-bottom: 0;
+        font-size: 12px;
+        height: 23px;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        cursor: pointer;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+    }
+
+    /*
+    *****主题体部分开始*******
+    */
+
+    #mainContent{
+        float:right;
+        width:77%;
+        font-size:13px;
+        margin:0px;
+    }
+
+    #mainContent div{
+        margin-top:30px;
+    }
+    div.postTitle{
+        font-size:15px;
+        margin-top:30px;
+        padding:0px 0px 3px 23px;
+        border-bottom:1px dotted #999999;			/* 下划淡色虚线 */
+        background:url(http://images.cnblogs.com/cnblogs_com/zghlx/WindowsLiveWriter/4219d446c994_11C0D/w_2.jpg) no-repeat left center;
+        font-weight:bold;
+    }
+    div.postTitle a:link, div.postTitle a:visited{
+        color:#662900;
+        text-decoration:none;
+    }
+    div.postTitle a:hover{
+        color:#0072ff;
+    }
+    .post h1{
+        text-align:center;
+    }
+    .post h2{
+        background:#336699;
+        padding:5px;
+        color:white;
+        font-size:20px;
+        text-shadow:1px 1px 1px;
+    }
+    /*每篇文章的样式*/
+    div.dayTitle{
+        display:none;
+    }
+
+    div.postCon{
+        margin:0px;
+        padding:10px 0px 10px 0px;
+    }
+    div.postDesc{
+        margin-right:10px;
+        text-align:right;
+        color:#888888;
+        padding:2px 5px 2px 0px;
+    }
+
+    div.topicListFooter{
+        margin:0px;
+        text-align:right;
+        color:#888888;
+        margin-top:50px;
+        padding:2px 5px 2px 0px;
+        font-size:16px;
+        font-weight:bold;
+
+    }
+
+    div.topicListFooter a {
+        border:1px solid #A2CAED;
+    }
+    /*正文部分的列表样式*/
+    #cnblogs_post_body ul,#cnblogs_post_body ol{
+        background: #99CC99;
+        font-size: 14px;
+    }
+    #cnblogs_post_body li{
+        margin-bottom:5px;
+        border-bottom: 1px dashed #CCFFFF;
+        padding:5px;
+    }
+    /*
+    *****脚部分开始*******
+    */
+
+    #footer{
+        clear:both;			/* 消除float的影响 */
+        text-align:center;
+        background-color:#daeeff;
+        margin:20px; padding:2px;
+        color:#004a87;
+
+    }
+
+
+    /*我的视频下载列表样式*/
+    .myList{
+        list-style:none;
+        margin:5px 15px 0px 15px;
+        padding:0px;
+    }
+    .myList li{
+        margin-left:20px;
+        font-size:13px;
+        color:#000;
+        font-family:Arial;
+        text-decoration:none;
+        font-weight:normal;
+        padding-left:15px;
+        background:url(http://nj.newhua.com/images/down/icon_url.gif) no-repeat left center;
+    }
+
+    .myList li a:hover{
+        margin-left:20px;
+        font-size:16px;
+        color:blue;
+        font-family:Arial;
+        text-decoration:underline;
+        font-weight:bold;
+        border:1px solid red;
+    }
+    </style>
+</head>
+<body>
+<a name="top"></a>
+
+<!--done-->
+<div id="home">
+<div id="header">
+    <div id="blogTitle">
+        <a id="lnkBlogLogo" href="http://www.cnblogs.com/accordion/"><img id="blogLogo" src="/Skins/custom/images/logo.gif" alt="返回主页" /></a>
+
+        <!--done-->
+        <h1><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/accordion/">RoyalRover的小木桶</a></h1>
+        <h2>大气大为，诚毅勤朴</h2>
+
+
+
+
+    </div><!--end: blogTitle 博客的标题和副标题 -->
+    <div id="navigator">
+
+        <ul id="navList">
+            <li><a id="MyLinks1_HomeLink" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
+            <li><a id="MyLinks1_MyHomeLink" class="menu" href="http://www.cnblogs.com/accordion/">首页</a></li>
+            <li><a id="MyLinks1_NewPostLink" class="menu" rel="nofollow" href="http://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+            <li><a id="MyLinks1_ContactLink" class="menu" rel="nofollow" href="http://space.cnblogs.com/msg/send/royalrover">联系</a></li>
+            <li><a id="MyLinks1_Syndication" class="menu" href="http://www.cnblogs.com/accordion/rss">订阅</a>
+                <!--<a id="MyLinks1_XMLLink" class="aHeaderXML" href="http://www.cnblogs.com/accordion/rss"><img src="http://www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+            <li><a id="MyLinks1_Admin" class="menu" rel="nofollow" href="http://i.cnblogs.com/">管理</a></li>
+        </ul>
+        <div class="blogStats">
+
+
+            <!--done-->
+            随笔- 51&nbsp;
+            文章- 0&nbsp;
+            评论- 0&nbsp;
+
+
+        </div><!--end: blogStats -->
+    </div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+<div id="mainContent">
+    <div class="forFlow">
+
+
+        <!--done-->
+        <div id="topics">
+            <div class = "post">
+                <h1 class = "postTitle">
+                    <a id="cb_post_title_url" class="postTitle2" href="http://www.cnblogs.com/accordion/p/4119968.html">不要使用浏览器嗅探，尽量使用特性检测和特性模拟</a>
+                </h1>
+                <div class="clear"></div>
+                <div class="postBody">
+                    <div id="cnblogs_post_body"><h2>平淡的描述</h2>
+                        <p>　　在js中，能使用特征监测就尽量不要使用浏览器嗅探。嗅探浏览器目的是判断可否使用这个对象或者API，但是抛开浏览器</p>
+                        <p>的各个版本的userAgent不说，还有些浏览器打补丁的情况，造成判断异常复杂，兜了个大的圈子，而特征检测则是直接</p>
+                        <p>了当，不存在维护困难的问题。</p>
+                        <p>　　其次，当不确定某个版本的浏览器是否有特殊的bug时（如IE8下js访问css的float属性时，是styleFloat，</p>
+                        <p>而在w3c浏览器下是CssFloat；IE8下getElementByTagNames返回NodeList包括注释节点），仅仅使用特征检测却是不够的。</p>
+                        <p>这是就需要特性模拟。特性模拟最经典的例子就是jQuery的support模块，我们可以参考该模块来充分认识各个浏览器下的独特</p>
+                        <p>的bug。</p>
+                        <p>&nbsp;</p>
+                        <h2>示范1　　</h2>
+                        <p>　　利用特征监测来推测IE的的版本号非常好用，也可利用IE的一些特有对象来识别IE所有系列。</p>
+                        <p>　　</p>
+                        <div class="cnblogs_code">
+<pre>'VBArray' <span style="color: #0000ff;">in</span> window <span style="color: #008000;">//</span><span style="color: #008000;"> true</span>
+'ActiveXObject' <span style="color: #0000ff;">in</span> window <span style="color: #008000;">//</span><span style="color: #008000;">true</span>
+
+<span style="color: #0000ff;">if</span><span style="color: #000000;">(isIE){
+  </span><span style="color: #0000ff;">if</span>(document.documentMode == 11<span style="color: #000000;">){
+    isIE11 </span>= <span style="color: #0000ff;">true</span><span style="color: #000000;">;  
+  }</span><span style="color: #0000ff;">else</span> <span style="color: #0000ff;">if</span>('WebSocket' <span style="color: #0000ff;">in</span><span style="color: #000000;"> window){
+    isIE10 </span>= <span style="color: #0000ff;">true</span><span style="color: #000000;">;    
+  }</span><span style="color: #0000ff;">else</span> <span style="color: #0000ff;">if</span>('HTMLElement' <span style="color: #0000ff;">in</span><span style="color: #000000;"> window){
+    isIE9 </span>= <span style="color: #0000ff;">true</span><span style="color: #000000;">;
+  }</span><span style="color: #0000ff;">else</span> <span style="color: #0000ff;">if</span>('localStorage' <span style="color: #0000ff;">in</span><span style="color: #000000;"> window){
+    isIE8 </span>= <span style="color: #0000ff;">true</span><span style="color: #000000;">;
+  } </span><span style="color: #0000ff;">else</span> <span style="color: #0000ff;">if</span>('minHeight' <span style="color: #0000ff;">in</span><span style="color: #000000;"> div.currentStyle){
+    isIE7 </span>= <span style="color: #0000ff;">true</span><span style="color: #000000;">;
+  } </span><span style="color: #0000ff;">else</span><span style="color: #000000;">{
+    isIE6 </span>= <span style="color: #0000ff;">true</span><span style="color: #000000;">;
+    document.execCommad(</span>'backgroundimagecache',<span style="color: #0000ff;">false</span>,<span style="color: #0000ff;">false</span>); <span style="color: #008000;">//</span><span style="color: #008000;">IE6并不会对背景图片进行缓存，故进行修补</span>
+<span style="color: #000000;">  }
+}    </span></pre>
+                        </div>
+                        <p>&nbsp;</p>
+                        <p>对于ff：</p>
+                        <p>　　经最新版本测试</p>
+                        <div class="cnblogs_code">
+                            <pre>'netscape' <span style="color: #0000ff;">in</span> window <span style="color: #008000;">//</span><span style="color: #008000;"> true</span></pre>
+                        </div>
+                        <p>&nbsp;</p>
+                        <h2>示范二</h2>
+                        <p>　　利用特性模拟来判断浏览器的getElementByTagNames返回的NodeList对象是否包含注释节点：</p>
+                        <p>　　</p>
+                        <div class="cnblogs_code">
+<pre><span style="color: #000000;">(function(){
+    </span><span style="color: #0000ff;">var</span> hasCommentNode = <span style="color: #0000ff;">false</span><span style="color: #000000;">,d;
+    d </span>= document.createElement(<span style="color: #800000;">"</span><span style="color: #800000;">div</span><span style="color: #800000;">"</span><span style="color: #000000;">);
+    d.appendChild(document.createComment(</span><span style="color: #800000;">"</span><span style="color: #800000;">test</span><span style="color: #800000;">"</span><span style="color: #000000;">));
+    </span><span style="color: #0000ff;">if</span>(d.getElementByTagNames(<span style="color: #800000;">"</span><span style="color: #800000;">*</span><span style="color: #800000;">"</span>).length != <span style="color: #800080;">0</span><span style="color: #000000;">)
+        hasCommentNode </span>= <span style="color: #0000ff;">true</span><span style="color: #000000;">;
+    window.hasCommentNode </span>=<span style="color: #000000;"> hasCommentNode ;<br />    d.outerHTML = "";
+})()</span></pre>
+                        </div>
+                        <p>　　模拟的结果保存在全局变量上，以供后面的代码使用。</p>
+                        <p>　　更为详细的特征模拟可以参考jQuery的support模块。其主要模拟了</p>
+                        <ol>
+                            <li style="list-style-type: none;"><ol>
+                                <li>NodeList对象在旧版IE（IE678）下使用数组方法slice会出错；</li>
+                                <li>CssStyleDeclaration的float的属性名问题；</li>
+                                <li>IE下的滤镜问题（针对透明度而言）；　　　</li>
+                                <li>旧版IE下setAttribute("className")问题；</li>
+                            </ol></li>
+                        </ol>
+                        <h2>言论</h2>
+                        <p>　　可见，没必要再对userAgent耿耿于怀，字符串可以随意伪造，但是浏览器的相关特性却是不会改变，所以我们</p>
+                        <p>还是宁愿花几毫秒来测试一番，而不用提心吊胆的根据字符串随意猜测相关特性。</p></div><div id="MySignature"></div>
+                    <div class="clear"></div>
+                    <div id="blog_post_info_block">
+                        <div id="BlogPostCategory"></div>
+                        <div id="EntryTag"></div>
+                        <div id="blog_post_info">
+                        </div>
+                        <div class="clear"></div>
+                        <div id="post_next_prev"></div>
+                    </div>
+
+
+                </div>
+                <div class = "postDesc">posted @ <span id="post-date">2014-11-24 23:48</span> <a href='http://www.cnblogs.com/accordion/'>royalrover</a> 阅读(<span id="post_view_count">...</span>) 评论(<span id="post_comment_count">...</span>)  <a href ="http://i.cnblogs.com/EditPosts.aspx?postid=4119968" rel="nofollow">编辑</a> <a href="#" onclick="AddToWz(4119968);return false;">收藏</a></div>
+            </div>
+            <script type="text/javascript">var allowComments=true,isLogined=true,cb_blogId=204605,cb_entryId=4119968,cb_blogApp=currentBlogApp,cb_blogUserGuid='dbd8d399-136a-e411-b908-9dcfd8948a71',cb_entryCreatedDate='2014/11/24 23:48:00';loadViewCount(cb_entryId);</script>
+
+        </div><!--end: topics 文章、评论容器-->
+        <a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+        <div id="comment_form" class="commentform">
+            <a name="commentform"></a>
+            <div id="divCommentShow"></div>
+            <div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" id="lnk_RefreshComments" onclick="return RefreshCommentList();">刷新评论</a><a href="#" onclick="return RefreshPage();">刷新页面</a><a href="#top">返回顶部</a></div>
+            <div id="comment_form_container"></div>
+            <div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+            <div id="site_nav_under"><a href="http://www.cnblogs.com/" target="_blank" title="开发者的网上家园">博客园首页</a><a href="http://q.cnblogs.com/" target="_blank" title="程序员问答社区">博问</a><a href="http://news.cnblogs.com/" target="_blank" title="IT新闻">新闻</a><a href="http://home.cnblogs.com/ing/" target="_blank">闪存</a><a href="http://job.cnblogs.com/" target="_blank">程序员招聘</a><a href="http://kb.cnblogs.com/" target="_blank">知识库</a></div>
+            <div id="opt_under_post"></div>
+            <script type="text/javascript">
+                var enableGoogleAd = canShowAdsense(); var googletag = googletag || {}; googletag.cmd = googletag.cmd || [];
+                fixPostBodyFormat();
+            </script>
+            <div id="ad_under_post_holder">
+                <script type='text/javascript'>
+                    var googletag = googletag || {};
+                    googletag.cmd = googletag.cmd || [];
+                    (function () {
+                        if (enableGoogleAd) {
+                            var gads = document.createElement('script');
+                            gads.async = true;
+                            gads.type = 'text/javascript';
+                            var useSSL = 'https:' == document.location.protocol;
+                            gads.src = (useSSL ? 'https:' : 'http:') + '//www.googletagservices.com/tag/js/gpt.js';
+                            var node = document.getElementsByTagName('script')[0];
+                            node.parentNode.insertBefore(gads, node);
+                        }
+                    })();
+                </script>
+                <script type='text/javascript'>
+                    try {
+                        if (enableGoogleAd) {
+                            googletag.cmd.push(function () {
+                                googletag.defineSlot('/1090369/cnblogs_blogpost_C1_sitehome', [300, 250], 'div-gpt-ad-1346480159711-0').addService(googletag.pubads());
+                                googletag.defineSlot('/1090369/cnblogs_blogpost_C2', [468, 60], 'div-gpt-ad-1410860226396-0').addService(googletag.pubads());
+                                googletag.pubads().enableSingleRequest();
+                                googletag.enableServices();
+                            });
+                        };
+                    } catch (e) { }
+                </script>
+                <div id="google_ad_c1" class="c_ad_block">
+                    <div id='div-gpt-ad-1346480159711-0' style='width:300px; height:250px;'>
+                        <script type='text/javascript'>
+                            try {
+                                if (enableGoogleAd) {
+                                    googletag.cmd.push(function () { googletag.display('div-gpt-ad-1346480159711-0'); });
+                                } else {
+                                    $('#div-gpt-ad-1346480159711-0').hide();
+                                }
+                            } catch (e) { }
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div id="under_post_news"></div>
+            <div id="google_ad_c2" class="c_ad_block">
+                <div id='div-gpt-ad-1410860226396-0' style='width:468px; height:60px;'>
+                    <script type='text/javascript'>
+                        try {
+                            if (enableGoogleAd) {
+                                googletag.cmd.push(function () { googletag.display('div-gpt-ad-1410860226396-0'); });
+                            } else {
+                                $('#div-gpt-ad-1346480159711-0').hide();
+                            }
+                        } catch (e) { }
+                    </script>
+                </div>
+            </div>
+            <div id="under_post_kb"></div>
+            <div id="HistoryToday" class="c_ad_block"></div>
+            <script type="text/javascript">
+                $(function () {
+                    loadNewsAndKb();
+                    loadBlogSignature();
+                    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+                    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
+                    loadOptUnderPost();
+                    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);
+                    setTimeout(function () { incrementViewCount(cb_entryId); }, 200);
+                });
+            </script>
+        </div>
+
+    </div><!--end: forFlow -->
+</div><!--end: mainContent 主体内容容器-->
+
+<div id="sideBar">
+    <div id="sideBarMain">
+
+        <!--done-->
+        <div class="newsItem">
+            <h3 class="catListTitle">公告</h3>
+            <div id="blog-news"></div><script type="text/javascript">loadBlogNews();</script>
+        </div>
+
+        <div id="blog-calendar" style="display:none"></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+
+        <div id="leftcontentcontainer">
+            <div id="blog-sidecolumn"></div><script type="text/javascript">loadBlogSideColumn();</script>
+        </div>
+
+    </div><!--end: sideBarMain -->
+</div><!--end: sideBar 侧边栏容器 -->
+<div class="clear"></div>
+</div><!--end: main -->
+<div class="clear"></div>
+<div id="footer">
+
+    <!--done-->
+    Copyright &copy;2015 royalrover
+</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+</body>
+</html>

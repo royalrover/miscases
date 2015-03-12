@@ -1,5 +1,6 @@
-define("src/application-debug", [ "./util-debug" ], function(require, exports, module) {
+define("./dist/application-debug", [ "./util-debug","jquery" ], function(require, exports, module) {
     var util = require("./util-debug");
+    var $ = require("jquery");
     var helloSeaJS = document.getElementById("hello-seajs");
     helloSeaJS.style.color = util.randomColor();
     window.setInterval(function() {
@@ -7,7 +8,7 @@ define("src/application-debug", [ "./util-debug" ], function(require, exports, m
     }, 1500);
 });
 
-define("src/util-debug", [], function(require, exports, module) {
+define("./dist/util-debug", [], function(require, exports, module) {
     var util = {};
     var colorRange = [ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" ];
     util.randomColor = function() {

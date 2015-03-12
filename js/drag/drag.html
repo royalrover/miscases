@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <div id='d' style="position: absolute;left:0;top:0;width:200px;height:200px;background: red;"></div>
+    <script>
+       /* var Drag = {
+            // 拖拽元素
+            obj: null,
+            //el: 拖拽元素
+            //minX: X轴最小边界
+            //minY: Y轴最小边界
+            //maxX: X轴最大边界
+            //maxY: X轴最大边界
+            init: function(el,minX,maxX,minY,maxY){
+                this.obj = el;
+                if(isNaN(this.getLocation().x))
+                    this.obj.style.left = '0px';
+                if(isNaN(this.getLocation().y))
+                    this.obj.style.top = '0px';
+
+                this.obj.onmousedown = function(e){
+                    Drag.start.call(el,e);
+                };
+                this.obj.minX = minX;
+                this.obj.minY = minY;
+                this.obj.maxX = maxX;
+                this.obj.maxY = maxY;
+
+
+            },
+            start: function(e){
+                e = Drag.fixEvent(e);
+                this.inDOMLocation = {
+                    x: e.layerX,
+                    y: e.layerY
+                };
+                this.oldLocation = {
+                    x: e.clientX,
+                    y: e.clientY
+                };
+                //设定鼠标的移动范围
+                if(this.minX)
+                    this.minMouseX = e.layerX + this.minX;
+                if(this.minY)
+                    this.minMouseY = e.layerY + this.minY;
+                if(this.maxX)
+                    this.maxMouseX = this.maxX - (this.offsetWidth - (parseInt(this.clientLeft) || 0) - e.layerX)
+                if(this.maxY)
+                    this.maxMouseY = this.maxY - (this.offsetHeight - (parseInt(this.clientTop) || 0) - e.layerY)
+
+                this.onmousemove = function(e){
+                    Drag.drag.call(Drag.obj,e);
+                };
+                this.onmouseup = function(e){
+                    Drag.stop.call(Drag.obj,e);
+                };
+            },
+            drag: function(e){
+                e = Drag.fixEvent(e);
+                var newLocation = {
+                    x: e.clientX,
+                    y: e.clientY
+                }, x,y;
+                x = newLocation.x;
+                y = newLocation.y;
+                if(this.minMouseX)
+                    x = Math.max(this.minMouseX,newLocation.x)
+                if(this.minMouseY)
+                    y = Math.max(this.minMouseY,newLocation.y)
+                if(this.maxMouseX)
+                    x = Math.min(this.maxMouseX,x)
+                if(this.maxMouseY)
+                    y = Math.min(this.maxMouseY,y)
+
+                this.style.left = Drag.getLocation().x + (x - this.oldLocation.x) + 'px';
+                this.style.top = Drag.getLocation().y + (y - this.oldLocation.y) + 'px';
+                this.oldLocation = {
+                    x: x,
+                    y: y
+                }
+                return;
+            },
+            stop: function(){
+                this.oldLocation = null;
+                this.inDOMLocation = null;
+                this.onmouseup = this.onmousemove = null
+            },
+            fixEvent: function(e){
+                e = e || window.event;
+                if(!e.layerX)
+                    e.layerX = e.offsetX;
+                if(!e.layerY)
+                    e.layerY = e.offsetY;
+                if(!e.pageX)
+                    e.pageX = e.clientX + document.body.scrollLeft - document.body.clientLeft;
+                if(!e.pageY)
+                    e.pageY = e.clientY + document.body.scrollTop - document.body.clientTop;
+
+                return e;
+            },
+            getLocation: function(){
+                var location = {},style;
+                if(window.getComputedStyle){
+                    style = window.getComputedStyle(this.obj,'');
+                    location.x = parseInt(style.getPropertyValue('left'));
+                    location.y = parseInt(style.getPropertyValue('top'));
+                }else{
+                    style = this.obj.currentStyle;
+                    location.x = parseInt(style['left']);
+                    location.y = parseInt(style['top']);
+                }
+                return location;
+            }
+        }*/
+
+        var Drag = function(el,minX,maxX,minY,maxY){
+            // 拖拽元素
+            //el: 拖拽元素
+            //minX: X轴最小边界
+            //minY: Y轴最小边界
+            //maxX: X轴最大边界
+            //maxY: X轴最大边界
+            var self = this;
+            this.obj = el;
+            this.obj.minX = minX;
+            this.obj.minY = minY;
+            this.obj.maxX = maxX;
+            this.obj.maxY = maxY;
+
+            if(isNaN(Drag.getLocation(el).x))
+                this.obj.style.left = '0px';
+            if(isNaN(Drag.getLocation(el).y))
+                this.obj.style.top = '0px';
+            if(el.tagName.toLowerCase() == 'iframe'){
+                this.obj.contentDocument.onmousedown = function(e){
+                    start.call(el,e);
+                    Drag.fixEvent(e).stopPropagation()
+                };
+            }else{
+                this.obj.onmousedown = function(e){
+                    start.call(el,e);
+                    Drag.fixEvent(e).stopPropagation()
+                };
+            }
+
+        }
+        Drag.fixEvent = function(e){
+            e = e || window.event;
+            // 在此处，Chrome的layerX不正确，使用offsetX。
+            // 另外，无法修改事件对象的属性，只能另外添加
+            if(typeof e.layerX == "undefined" || e.layerX != e.offsetX ){
+                e.lX = e.offsetX;
+                e.lY = e.offsetY;
+            }else{
+                e.lX = e.layerX;
+                e.lY = e.layerY;
+            }
+            if(!e.pageX)
+                e.pageX = e.clientX + document.body.scrollLeft - document.body.clientLeft;
+            if(!e.pageY)
+                e.pageY = e.clientY + document.body.scrollTop - document.body.clientTop;
+            if(!e.stopPropagation){
+                e.stopPropagation = function(){
+                    e.cancelBubble = true;
+                }
+            }
+            if(!e.preventDefault){
+                e.preventDefault = function(){
+                    e.returnValue = false;
+                }
+            }
+            return e;
+        };
+        Drag.getLocation = function(el){
+            var location = {},style;
+            if(window.getComputedStyle){
+                style = window.getComputedStyle(el,'');
+                location.x = parseInt(style.getPropertyValue('left'));
+                location.y = parseInt(style.getPropertyValue('top'));
+            }else{
+                style = el.currentStyle;
+                location.x = parseInt(style['left']);
+                location.y = parseInt(style['top']);
+            }
+            return location;
+        };
+
+        function start(e){
+            var self = this;
+            e = Drag.fixEvent(e);
+            this.inDOMLocation = {
+                x: e.lX,
+                y: e.lY
+            };
+            this.oldLocation = {
+                x: e.clientX,
+                y: e.clientY
+            };
+            //设定鼠标的移动范围
+            if(this.minX)
+                this.minMouseX = e.layerX + this.minX;
+            if(this.minY)
+                this.minMouseY = e.layerY + this.minY;
+            if(this.maxX)
+                this.maxMouseX = this.maxX - (this.offsetWidth - (parseInt(this.clientLeft) || 0) - e.lX)
+            if(this.maxY)
+                this.maxMouseY = this.maxY - (this.offsetHeight - (parseInt(this.clientTop) || 0) - e.lY)
+
+            if(this.tagName.toLowerCase() == 'iframe'){
+                this.contentDocument.onmousemove = function(e){
+                    drag.call(self,e);
+                };
+                this.contentDocument.onmouseup = function(e){
+                    stop.call(self,e);
+                };
+            }else{
+                this.onmousemove = function(e){
+                    drag.call(self,e);
+                };
+                this.onmouseup = function(e){
+                    stop.call(self,e);
+                };
+            }
+
+        }
+        function drag(e){
+            e = Drag.fixEvent(e);
+            var newLocation = {
+                x: e.clientX,
+                y: e.clientY
+            }, x,y;
+            x = newLocation.x;
+            y = newLocation.y;
+            if(this.minMouseX)
+                x = Math.max(this.minMouseX,newLocation.x)
+            if(this.minMouseY)
+                y = Math.max(this.minMouseY,newLocation.y)
+            if(this.maxMouseX)
+                x = Math.min(this.maxMouseX,x)
+            if(this.maxMouseY)
+                y = Math.min(this.maxMouseY,y)
+
+            this.style.left = Drag.getLocation(this).x + (x - this.oldLocation.x) + 'px'; // x - this.inDOMLocation.x - this.clientLeft+'px'//
+            this.style.top = Drag.getLocation(this).y + (y - this.oldLocation.y) + 'px'; // y - this.inDOMLocation.y - this.clientTop+'px'//
+            this.oldLocation = {
+                x: x,
+                y: y
+            };
+            return;
+        }
+        function stop(){
+            this.oldLocation = null;
+            this.inDOMLocation = null;
+            if(this.tagName.toLowerCase() == 'iframe'){
+                this.contentDocument.onmouseup = this.contentDocument.onmousemove = null
+            }else{
+                this.onmouseup = this.onmousemove = null
+            }
+        }
+        new Drag(document.getElementById('d'),20,500,30,500)
+    </script>
+</body>
+</html>

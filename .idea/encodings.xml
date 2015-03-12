@@ -2,8 +2,9 @@
 <project version="4">
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
     <file url="file://G:/前端css模块和js插件/富文本编辑器/editor.js" charset="GBK" />
-    <file url="file://$PROJECT_DIR$/js/base.js" charset="GBK" />
-    <file url="file://$PROJECT_DIR$/js/jtopo-all.js" charset="GBK" />
+    <file url="file://G:/前端css模块和js插件/插件或模块/scrollLoading.js" charset="GB2312" />
+    <file url="file://$PROJECT_DIR$/js/tool/base.js" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/js/topology/jtopo-all.js" charset="GBK" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

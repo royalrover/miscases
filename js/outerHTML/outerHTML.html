@@ -1,0 +1,38 @@
+    <!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <script>
+        //对Firefox 11- 版本做兼容，其不支持outerHTML属性
+        function getOuterHtml(){
+            var e = document.createElement("div");
+            e.appendChild(this);
+            return e.innerHTML;
+        }
+        function setOuterHtml(){
+            var e = document.createElement("div");
+            var p = this.parentNode;
+            e.appendChild(this);
+            while(e.firstChild){
+                p.insertBefore(e.firstChild,this);
+            }
+            p.removeChild(this);
+        }
+
+        if(Object.defineProperty){
+            Object.defineProperty(Element.prototype,"outerHTML",{
+                get: getOuterHtml,
+                set: setOuterHtml,
+                enumerable: false,
+                configurable: false
+            })
+        }else{
+            Element.prototype.__defineGetter__("outerHTML",getOuterHtml);
+            Element.prototype.__defineSetter__("outerHTML",setOuterHtml);
+        }
+    </script>
+</body>
+</html>

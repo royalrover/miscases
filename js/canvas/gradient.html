@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="../snandy's%20box/screen.js"></script>
+</head>
+<body>
+    <canvas id="c"></canvas>
+    <script>
+        var c = S('#c'),g = c[0].getContext('2d');
+        c[0].width = 600;
+        c[0].height = 400;
+        c.css('border','1px solid black');
+        function drawSkyAndGrass(g){
+            var gradient = g.createLinearGradient(0,0,0, c[0].height);
+            gradient.addColorStop(0,'#05C0FF');
+            gradient.addColorStop(0.5,'white');
+            gradient.addColorStop(0.5,'#56DD03');
+            gradient.addColorStop(1,'white');
+            g.fillStyle = gradient;
+            g.fillRect(0,0,c[0].width,c[0].height);
+        }
+        function drawSun(g){
+            var gradient = g.createRadialGradient(c[0].width-64,64,32,c[0].width-64,64,64)
+            gradient.addColorStop(0,'white');
+            gradient.addColorStop(1,'rgba(255,255,0,0)');
+            g.fillStyle = gradient;
+            g.fillRect(c[0].width-128,0,128,128)
+        }
+        drawSkyAndGrass(g);
+        drawSun(g);
+    </script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            .wrapper {
+                letter-spacing: -4px; /* Safari 等不支持字体大小为 0 的浏览器,根据父级字体调节*/
+            }
+        }
+        .wrapper{font-size: 0;*word-spacing: -1px;border: 1px solid black;
+        display: table-cell;vertical-align: middle;height:200px;}
+        .il{border:1px solid #000000;display:inline-block;
+            word-spacing: normal;letter-spacing:normal;*display:inline;*zoom:1;width:80px;height:100px;background: #cecece;font-size: 14px;vertical-align: middle;}
+        .bl{border:1px solid #000000;width:80px;height:100px;word-spacing: normal;letter-spacing:normal;background:#d0e9c6;display: inline-block;*display:inline;*zoom:1;font-size: 14px;vertical-align: middle;}
+        img{border:1px solid #000000;vertical-align: middle;}
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    　　<span class="il">inline-block 1</span>
+    　　<span class="il">inline-block 2</span>
+    　　<span class="il">inline-block 3</span>
+    　　<div class="bl">block 1</div>
+    　　<div class="bl">block 2</div>
+    　　<div class="bl">block 3</div>
+    　　<img src="../../img/1.jpg" width="80" height="100">
+    　　<img src="../../img/2.jpg" width="80" height="100">
+</div>
+<div style="border: 1px dashed darkcyan;line-height:150px;">
+        <span style="display: inline-block;vertical-align: middle;line-height: 1.4;">这是一个测试</br>
+            为了测试文本居中</span>
+        <i style="width:0;height:100%;vertical-align: middle;display: inline-block;">&nbsp;</i>
+</div>
+</body>
+</html>

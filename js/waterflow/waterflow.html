@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <style>
+        .cell img{
+            border: 2px solid #CCFFFF;
+        }
+        .cell p{
+            padding: 0;
+            margin: 5px auto;
+            text-align: center;
+        }
+    </style>
+    <script src="../vendor/jquery-1.11.1.js"></script>
+</head>
+<body>
+<div id="container"style="width:100%;">
+    <div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_000.jpg" /><p>00</p></div>
+    <div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_001.jpg" /><p>01</p></div>
+    <div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_002.jpg" /><p>02</p></div>
+    <div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_003.jpg" /><p>03</p></div>
+    <div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_004.jpg" /><p>04</p></div>
+    <div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_005.jpg" /><p>05</p></div>
+    <div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_006.jpg" /><p>06</p></div>
+    <div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_007.jpg" /><p>07</p></div>
+    <div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_008.jpg" /><p>08</p></div>
+    <div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_009.jpg" /><p>09</p></div>
+    <div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_010.jpg" /><p>10</p></div>
+</div>
+<div id="console" style="position:absolute;top:10px;right:30px;width:150px;" >
+
+</div>
+    <script>
+        (function l(){
+            if('console' in window && console.log){
+                l = function(m){
+                    console.log(m)
+                }
+            }
+            else{
+                l = function(m){
+                    $('#console').append('<p>'+m+'</p>')
+                }
+            }
+        })();
+        /**
+         * config = {
+         *  container: **,
+         *  columnWidth: **,
+         *  minColomn: **,
+         *  resize: **
+         *  }
+         * @param config
+         */
+        $.fn.extend({
+            waterflow: function(config){
+                var def = {
+                    minColumn: 1,
+                    columnSpacer: 20,
+                    resize: null
+                };
+                var setting,container,colCount,resizeFn,
+                        wrapperWidth,colWidth,
+                        list,columnList = [], d,len,
+                        colHtml = '';
+                var that = this;
+                setting = $.extend({},def,config);
+                container = $(this);
+                //获取包含块的宽度
+                wrapperWidth = setting.wrapperWidth || $(document.body).width() || 0;
+
+                colCount = wrapperWidth ? ((parseInt(wrapperWidth) / (setting.columnWidth + setting.columnSpacer)) >> 0) >= setting.minColumn ?
+                        (parseInt(wrapperWidth) / (setting.columnWidth + setting.columnSpacer)) >> 0 : setting.minColumn : setting.minColumn;
+                colWidth = setting.columnWidth <= Math.floor(wrapperWidth / colCount) - setting.columnSpacer ? setting.columnWidth :
+                        Math.floor(wrapperWidth / colCount) - setting.columnSpacer;
+                container.width(colCount * (colWidth + setting.columnSpacer));
+
+                list = container.children().detach();
+
+                container.css({
+                    'overflow': 'hidden',
+                    'paddingLeft': setting.columnSpacer/2,
+                    'paddingRight': setting.columnSpacer/2
+                });
+                for(var i = 0;i < colCount;i++){
+                    d = document.createElement('div');
+                    colHtml += '<div class="colWrapper" style="width:' + colWidth + 'px;margin-left:'+ setting.columnSpacer/2 +'px;' +
+                            'margin-right:'+ setting.columnSpacer/2 +'px;float:left;*display:inline;zoom:1;"><\/div>';
+                }
+                container.append($(colHtml));
+                columnList = $('.colWrapper',container);
+
+                addCell(list);
+
+                $(window).scroll(function(){
+                    var maxTopEl = maxHeight(),
+                            bottomHeight = maxTopEl.offset().top + maxTopEl.outerHeight(),
+                            scrollTop = document.documentElement.scrollTop || document.body.scrollTop || 0,
+                            clientHeight = document.documentElement.clientHeight || document.body.clientHeight || 0;
+                    if(bottomHeight - scrollTop <= clientHeight){
+                        var loadHtml = '<div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_011.jpg" /><p>11</p></div>'+
+                        '<div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_012.jpg" /><p>12</p></div>'+
+                        '<div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_013.jpg" /><p>13</p></div>'+
+                        '<div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_014.jpg" /><p>14</p></div>'+
+                        '<div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_015.jpg" /><p>15</p></div>'+
+                        '<div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_016.jpg" /><p>16</p></div>'+
+                        '<div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_017.jpg" /><p>17</p></div>'+
+                        '<div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_018.jpg" /><p>18</p></div>'+
+                        '<div class="cell"><img src="http://cued.xunlei.com/demos/publ/img/P_019.jpg" /><p>19</p></div>',
+                                fg,list;
+                        fg = document.createDocumentFragment();
+                        addCell($(loadHtml));
+                    }
+                })
+
+
+                function minHeight(){
+                    function min(a,b){
+                        if(a.outerHeight() <= b.outerHeight())
+                            return a;
+                        else return b;
+                    }
+                    var a = $(columnList[0]);
+                    for(var i=1;i<colCount;i++){
+                        a = min(a,$(columnList[i]));
+                    }
+                    return a;
+                }
+                function maxHeight(){
+                    function max(a,b){
+                        if(a.outerHeight() >= b.outerHeight())
+                            return a;
+                        else return b;
+                    }
+                    var a = $(columnList[0]);
+                    for(var i=1;i<colCount;i++){
+                        a = max(a,$(columnList[i]));
+                    }
+                    return a;
+                }
+                //向高度最低DE列中添加元素。若高度相同，则从最左边添加
+                function addChild(child,withHeight){
+                    var div,img;
+                    if(child.tagName.toLowerCase() == 'img' || $(child).find('img').length){
+                        // 如果格子中有图片或者本身就是图片
+                        if(withHeight){
+                            div = minHeight()
+                            div.css('height',$(child).height() + div.height());
+                            div.append(child);
+                        }else{
+                            //没有给出格子的高度，则等待格子加载完毕在进行布局
+                            img = new Image();
+                            img.onload = function(){
+                                div = minHeight();
+                                div.append(child);
+                                img = null;
+                            }
+
+                            //IE
+                            img.onreadystatechange = function(){
+                                if(img.readyState == 'complete'){
+                                    img.onload = null;
+                                    // IE 67有bug。每次新加载图片,div高度未改变
+                                    div = minHeight(); l('before:'+div.css('height') +" "+$(child).find('p').text())
+                                    div.append(child);
+                                    l('after:'+div.css('height')+" "+$(child).find('p').text())
+                                }
+                                img = null;
+                            }
+
+                            img.src = child.tagName.toLowerCase() == 'img' ? $(child).attr('src') : $(child).find('img').attr('src');
+                        }
+                    }else{
+                        div.append(child);
+                    }
+
+                }
+                //添加格子cell
+                function addCell(list){
+                    if(setting.hasCellHeight){
+                        for(var i=0,len=list.length;i<len;i++){
+                            addChild(list[i],true);
+                        }
+                    }else{
+                        for(var i=0,len=list.length;i<len;i++){
+                            addChild(list[i],false);
+                        }
+                    }
+                }
+                //函数节流
+                function throttle(fn){
+                    clearTimeout(throttle._id);
+                    throttle._id = setTimeout(function(){
+                        fn.call(that,arguments);
+                    },300);
+                }
+                //绑定事件
+                window.onresize = function(){
+                    throttle(setting.resize);
+                };
+            }
+        })
+
+        var i=1;
+        $('#container').waterflow({
+                columnWidth: 192,
+                columnSpacer: 20,
+                minColumn:1,
+                wrapperWidth:1000,
+                hasCellHeight: false, //是否给出了格子的高度
+                resize: function(){}
+            })
+
+    </script>
+</body>
+</html>

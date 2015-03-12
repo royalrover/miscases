@@ -1,7 +1,7 @@
 define(function(require,exports,module){
 
     var util = require('./util');
-    var $ = require('./jquery');console.log($('#hello-seajs'))
+    var $ = require('jquery');
     var helloSeaJS = document.getElementById('hello-seajs');
     helloSeaJS.style.color = util.randomColor();
     window.setInterval(function(){

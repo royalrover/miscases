@@ -1,19 +1,28 @@
+<!--[if !IE]>some text<![endif]-->
 <!DOCTYPE html>
 <html>
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
+    <!--[if lt IE9]>
+    <script type="text/javascript" src="../tool/firebug.js"></script>
+    <![endif]-->
     <script src="screen.js"></script>
     <script src="../vendor/jquery-1.11.1.js"></script>
+    <style>
+        #abc{background: #000000 !important;}
+    </style>
 </head>
 <body>
-    <div id="abc"></div>
+    <div id="abc" style="margin:auto;width:200px;height:200px;background: red;"></div>
     <div></div>
+    <button id="btn1">hide</button>
+    <button id="btn2">show</button>
     <script>
         function log(msg){
             console && console.log(msg)
         }
-        var dd = S('div');
+        var dd = S('#abc');
         var dz = $('#abc')
     //    dd[0].innerText = '<br/><a href="##">click mememe</a>'
     //    dd[0].textContent = '<br/><a href="##">click mememe</a>'
@@ -21,8 +30,18 @@
         var span = document.createElement('span');
         span.innerHTML = '<a href="#">abcbab</a>'
         dd.append(span)
-        dd.bind('click',function(){log(123)})
         dd.bind('mouseover',function(){log('over')})
+
+        S('#btn1').bind('click',function(e){
+            dd.hide('normal','zoom');
+            e.stopImmediatePropagation()
+        })
+        S('#btn1').bind('click',function(){
+            console.log(123123123)
+        })
+        S('#btn2').bind('click',function(){
+            dd.show('normal','zoom')
+        })
 
     </script>
 </body>

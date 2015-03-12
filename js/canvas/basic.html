@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <canvas id='c' width="600" height="600" style="border: 1px solid #000;cursor: default;"></canvas>
+    <button id="btn">clear</button>
+    <script>
+        function $(id){return document.getElementById(id)}
+        var cv = $("c"),ctx = cv.getContext("2d");
+        var points = [],isDrawing = false;
+        function distance(p,q){
+            return {
+                x: p.x + (q.x - p.x)/2,
+                y: p.y + (q.y - p.y)/2
+            }
+        }
+        ctx.lineCap = ctx.lineJoin = "round";
+        ctx.lineWidth = 8;
+        ctx.shadowBlur = 3;
+        ctx.shadowColor = "#000"
+        ctx.strokeStyle = "#000";
+        cv.onmousedown = function(e){
+            isDrawing = true;
+            points.push({x: e.clientX,y: e.clientY});
+        }
+        cv.onmousemove = function(e){
+            var p,midP,q;
+            if(!isDrawing) return;
+            points.push({x: e.clientX,y: e.clientY});
+            p = points[0];
+            q = points[1];
+    //        ctx.clearRect(0,0,cv.width,cv.height);
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            for(var i=1,len=points.length;i<len;i++){
+                midP = distance(p,q);
+                p = points[i];
+                q = points[i+1];
+                ctx.quadraticCurveTo(p.x, p.y,midP.x,midP.y);
+            }
+            ctx.stroke();
+        }
+        cv.onmouseup = function(e){
+            isDrawing = false;
+            // 每次放下鼠标，清空位置节点
+            points.length = 0;
+        }
+
+        var btn = $("btn");
+        btn.onclick = function(){
+            ctx.clearRect(0,0,cv.width,cv.height)
+        }
+        var a= 5,obj={};
+        (function(){
+            var a=3;
+            var e = eval;
+            var o={};
+            o.a="obj";
+            o.eval = eval;
+            o.eval("console.log(a,this);debugger;")
+            eval("console.log(a);debugger;")
+            this.eval("console.log(a);debugger;")
+        })()
+    </script>
+</body>
+</html>

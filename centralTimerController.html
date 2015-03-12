@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <button id="btn">click me</button>
+    <script>
+        var global = 45;
+        function a1(){
+            global = window;
+            setTimeout(function(){
+                console.log("async code 1...",global)
+            },1000)
+            return false;
+        }
+        function a2(){
+            global = "abc"
+            setTimeout(function(){
+                console.log("async code 2...",global == 'abc')
+            },1000)
+            return false;
+        }
+
+        var centralTimerController = {
+            timeId: null,
+            timers: [],
+            tick: 1,
+            add: function(fn){
+                this.timers.push(fn);
+            },
+            start: function(){
+                var that = this;
+                if(this.timeId) return;
+                this.tick = arguments.length && typeof arguments[0] == 'number' && arguments[0];
+                (function f(){
+                    for(var i=0;i<that.timers.length;i++){
+                        if(that.timers[i]() === false){ //返回值为false，则在下次循环中删除该函数
+                            that.timers.splice(i,1);
+                            i--;
+                        }
+                    }
+                    that.timeId = setTimeout(f,that.tick);
+                })();
+            },
+            end: function(){
+                clearTimeout(this.timeId);
+                this.timeId = null;
+            }
+        };
+
+        centralTimerController.add(a1);
+        centralTimerController.add(a2);
+        centralTimerController.start(10)
+    </script>
+</body>
+</html>

@@ -10,11 +10,12 @@
     <script src="sea-debug.js" id="seajsnode"></script>
     <script>
         seajs.config({
+            base: "./gallery/",
             alias:{
-                jquery: './jquery-1.11.1'
+                jquery: 'jquery/jquery-1.11.1'
             }
         })
-        seajs.use('application',function(t){console.log(t)});
+        seajs.use('./dist/application-debug');
     </script>
 </body>
 </html>

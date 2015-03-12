@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Mangled date examples</title>
+    <link href="qunit-1.16.0.css" rel="stylesheet" type="text/css">
+    <script src="qunit-1.16.0.js"></script>
+    <script src="../vendor/jquery-1.11.1.js"></script>
+</head>
+<body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture">
+        <input id="test-input">
+    </div>
+    <script>
+        QUnit.test('first',function(assert){
+            var b;
+        //    var done = assert.async();
+            setTimeout(function(){
+                assert.equal(b,'30','is true');
+        //        done()
+            })
+            b = 30;
+            var fixture = $( "#qunit-fixture" );
+
+            fixture.append( "<div>hello!</div>" );
+            assert.equal( $( fixture).children().length, 1, "div added successfully!" );
+            fixture.append( "<span>hello!</span>" );
+            assert.equal(  $( fixture).children().length, 1, "span added successfully!" );
+        })
+
+        QUnit.module( "module", {
+            setup: function( assert ) {
+                assert.ok( true, "one extra assert per test" );
+            }, teardown: function( assert ) {
+                assert.ok( true, "and one extra assert after each test" );
+            }
+        });
+        QUnit.test( "test with setup and teardown", function(assert) {
+            var o ={a:'name'};
+            assert.expect( 4 );
+            assert.equal(o,o,'passed')
+            assert.deepEqual({a:'name'},{a:'name'},'passed')
+            assert.strictEqual({a:'name'},{a:'name'},'?')
+        });
+
+        QUnit.test( "asynchronous test: async input focus", function( assert ) {
+            var done = assert.async();
+            var input = $( "#test-input" ).focus();
+            setTimeout(function() {
+                assert.equal( document.activeElement, input[0], "Input was focused" );
+         //       done();
+            });
+        });
+        QUnit.test("last",function(assert){
+            assert.ok(123,'the last last')
+        })
+    </script>
+</body>
+</html>

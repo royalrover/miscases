@@ -1,0 +1,43 @@
+@keyframes ppt{
+  0% {margin-left:0;}
+  33.3% {margin-left: -630px;}
+  66.7% {margin-left: -1260px;}
+  100% {margin-left: 0;}
+}
+@-webkit-keyframes ppt{
+  0% {margin-top:0;}
+  33.3% {margin-top: -350px;}
+  66.7% {margin-top: -700px;}
+  100% {margin-top: 0;}
+}
+
+.container{width:600px;height:350px;margin:auto;border: 2px solid royalblue;overflow: hidden;
+}
+ul{list-style: none;width:600px;padding: 0;overflow: hidden;-webkit-animation: ppt 10s infinite ease;}
+li{margin: 0 30px 0 0;width:600px;height:350px;float:left;display: inline-block;}
+
+dl{
+  counter-reset: name;
+  dt{
+    counter-increment: name;
+    counter-reset: dname;
+    &:before{
+      content: counter(name)".";
+      margin-right:10px;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+    }
+  }
+  dd{
+    counter-increment: dname;
+    &:before{
+      content: counter(name)"--"counter(dname)".";
+      margin-right:10px;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;}
+  }
+}
+
+

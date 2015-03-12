@@ -1,0 +1,123 @@
+.flexbox() {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+
+.flex(@flex-grow,@flex-shrunk,@flex-basis) {
+  -webkit-box-flex: @arguments;
+  -moz-box-flex:  @arguments;
+  -webkit-flex:  @arguments;
+  -ms-flex:  @arguments;
+  flex:  @arguments;
+}
+
+.order(@val) {
+  -webkit-box-ordinal-group: @val;
+  -moz-box-ordinal-group: @val;
+  -ms-flex-order: @val;
+  -webkit-order: @val;
+  order: @val;
+}
+
+html{
+  -webkit-text-size-adjust:none;
+  font-size: 10px;
+}
+.wrapper{
+  background: tomato;
+  .flexbox;
+  flex-flow: row wrap;
+}
+.main-header{
+  .flex(1,1,100%);
+  font-weight: bold;
+  font-size: 40px;
+  color:#ffffff;
+  text-align: center;
+  height:100px;
+  line-height: 100px;
+  background: blueviolet;
+}
+.main-content{
+  .flex(2,1,60%);
+  width:60%;
+  font-size: 14px;
+  .order(2);
+  height:300px;
+  background: #ffffff;
+  line-height:20px;
+}
+.nav{
+  .flex(1,1,20%);
+  width:20%;
+  .order(1);
+  background: greenyellow;
+  ul{
+    list-style: none;
+    margin:0;
+    padding:0;
+    overflow: hidden;
+    background: deepskyblue;
+    li{
+      float: left;
+      width:100%;
+      padding: 10px;
+      border-top: 1px solid rgba(255,255,255,0.3);
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      text-align: center;
+      height: 100%;
+      &:hover{
+        background: darken(deepskyblue, 2%);
+      }
+      a{
+        text-decoration: none;
+        color: #ffffff;
+        font-size: 14px;
+        display: block;
+        height: 100%;
+        cursor: pointer;
+      }
+    }
+  }
+}
+.sec{
+  .flex(1,1,20%);
+  width:20%;
+  .order(3);
+  font-weight: bold;
+  font-size: 40px;
+  color:#ffffff;
+  text-align: center;
+  background: #000000;
+}
+.main-footer{
+  .flex(1,1,100%);
+  .order(4);
+  font-weight: bold;
+  font-size: 40px;
+  color:#ffffff;
+  text-align: center;
+  background: violet;
+  height:100px;
+  line-height: 100px;
+}
+
+@media screen and (max-width : 600px){
+  .nav{
+    .flex(1,1,40%);
+    width:40%;
+    .order(1);
+  }
+  .main-content{
+    .flex(2,1,60%);
+    width:60%;
+    .order(2);
+  }
+  .sec{
+    .flex(1,1,100%);
+    .order(3);
+  }
+}

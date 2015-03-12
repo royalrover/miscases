@@ -1,0 +1,81 @@
+.perspective(@p){
+  -webkit-perspective: @p;
+  -moz-perspective: @p;
+  -ms-perspective: @p;
+  -o-perspective: @p;
+  perspective: @p;
+}
+.transformStyle(){
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  -ms-transform-style: preserve-3d;
+  -o-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+.transition(@p){
+  -webkit-transition: @arguments;
+  -moz-transition: @arguments;
+  -ms-transition: @arguments;
+  -o-transition: @arguments;
+  transition: @arguments;
+}
+.transform(@fn1){
+  -webkit-transform: @arguments;
+  -moz-transform: @arguments;
+  -ms-transform: @arguments;
+  -o-transform: @arguments;
+  transform: @arguments;
+}
+.stage{
+  width: 500px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  .perspective(2000px);
+}
+.wrap{
+  position: absolute;
+  width: 310px;
+  height: 100px;
+  margin: auto;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  .transformStyle();
+  .transition(all 1s ease);
+  &:hover img{
+    .transform(rotateX(90deg) translateZ(40px));
+  }
+  &:hover span{
+    .transform(rotateX(0deg) translateZ(40px));
+  }
+  img{
+    position: absolute;
+    z-index: 2;
+    .transform(rotateX(0deg) translateZ(40px));
+    .transition(transform 0.5s ease);
+  }
+  span{
+    display: inline-block;
+    width: 310px;
+    height: 100px;
+    position: absolute;
+    top: 0;
+    z-index: 1;
+    .transform(rotateX(-90deg) translateZ(40px));
+    .transition(transform 0.5s ease);
+    background: rgb(236,241,244);
+    background: -webkit-linear-gradient(to bottom,  rgba(236,241,244,1) 0%,rgba(190,202,217,1) 100%);
+    background: -ms-linear-gradient(to bottom,  rgba(236,241,244,1) 0%,rgba(190,202,217,1) 100%);
+    background: linear-gradient(to bottom,  rgba(236,241,244,1) 0%,rgba(190,202,217,1) 100%);
+    strong{
+      font-size: 20px;
+      color: white;
+      display: block;
+    }
+  }
+}
