@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <p>
+
+        <a href="http://blog.csdn.net/morewindows/article/details/8029996">微软2010年笔试题</a>
+
+        在一个排列中，如果一对数的前后位置与大小顺序相反，即前面的数大于后面的数，那么它们
+        就称为一个逆序数对。一个排列中逆序的总数就称为这个排列的逆序数。如{2，4，3，1}中，
+        2和1，4和3，4和1，3和1是逆序数对，因此整个数组的逆序数对个数为4，现在给定一数组，要求
+        统计出该数组的逆序数对个数。
+    </p>
+    <script>
+        var sort = {
+            count: 0,
+            mergeArray: function(left,right){
+                var ret = [];
+                while(left.length > 0 && right.length > 0){
+                    if(left[0] > right[0]){
+                        this.count += left.length;
+                        ret.push(right.shift());
+                    }else{
+                        ret.push(left.shift());
+                    }
+                }
+                return ret.concat(left).concat(right);
+            },
+            sort: function(arr){
+                if(arr.length == 1)
+                    return arr;
+                var len = arr.length,
+                        m = Math.floor(len/2),
+                        left = arr.slice(0,m),
+                        right = arr.slice(m);
+                return this.mergeArray(this.sort(left),this.sort(right));
+            }
+        }
+        sort.sort([2,4,3,1,0]);
+        console.log(sort.count)
+    </script>
+</body>
+</html>

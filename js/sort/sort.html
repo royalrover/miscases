@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <img src="http://img.my.csdn.net/uploads/201209/09/1347195747_3017.PNG">
+    <script>
+        function Sort(){
+        }
+        Sort.prototype = {
+            // 通过交换使相邻的两个数变成小数在前大数在后，这样每次遍历后，
+            // 最大的数就“沉”到最后面了。重复N次即可以使数组有序。
+
+            // 冒泡排序改进1：在某次遍历中如果没有数据交换，说明整个数组已
+            // 经有序。因此通过设置标志位来记录此次遍历有无数据交换就可以判
+            // 断是否要继续循环。
+
+            // 冒泡排序改进2：记录某次遍历时最后发生数据交换的位置，这个位
+            // 置之后的数据显然已经有序了。因此通过记录最后发生数据交换的
+            // 位置就可以确定下次循环的范围了。
+            bubbleSort: function(arr){
+                var tem;
+                var flag = arr.length-1; // 记录最后发生数据交换的位置
+                var t;
+                while(flag > 0){
+                    t = flag;
+                    flag = 0;
+                    for(var j=0;j<t;j++){
+                        if(arr[j] > arr[j+1]){
+                            tem = arr[j];
+                            arr[j] = arr[j+1];
+                            arr[j+1] = tem;
+                            flag = j;
+                        }
+                    }
+                }
+                /*for(var i=arr.length-1;i > 0;i--){
+                    for(var j=0;j < i;j++){
+                        if(arr[j] > arr[j+1]){
+                            tem = arr[j];
+                            arr[j] = arr[j+1];
+                            arr[j+1] = tem;
+                        }
+                    }
+                }*/
+
+                return arr;
+            },
+            // 数组分成有序区和无序区，初始时整个数组都是无序区，
+            // 然后每次从无序区选一个最小的元素直接放到有序区的最后，
+            // 直到整个数组变有序区
+            selectionSort: function(arr){
+                var tem;
+                for(var i=0;i<arr.length;i++)
+                    for(var j=i+1;j<arr.length;j++){
+                        if(arr[i] > arr[j]){
+                            tem = arr[i];
+                            arr[i] = arr[j];
+                            arr[j] = tem;
+                        }
+                    }
+                return arr;
+            },
+            // 每次将一个待排序的数据，插入到前面已经排好序的序列之中，直到全部数据插入完成
+            insertSort: function(arr){
+                var tem;
+                for(var i=1;i<arr.length;i++)
+                    for(var j=i;j>0 && arr[j-1]>arr[j];j--){
+                        tem = arr[j-1];
+                        arr[j-1] = arr[j];
+                        arr[j] = tem;
+                    }
+                return arr;
+            },
+            // “挖坑填数+分治法”，首先令i =L; j = R; 将a[i]挖出形成第一个坑，
+            // 称a[i]为基准数。然后j--由后向前找比基准数小的数，找到后挖出此数
+            // 填入前一个坑a[i]中，再i++由前向后找比基准数大的数，找到后也挖出此数填
+            // 到前一个坑a[j]中。重复进行这种“挖坑填数”直到i==j。再将基准数填入a[i]中，
+            // 这样i之前的数都比基准数小，i之后的数都比基准数大。因此将数组分成二部分再
+            // 分别重复上述步骤就完成了排序
+            quickSort: function(arr,low,high){
+                var tem;
+                var p;
+                function partition(arr,low,high){
+                    var m, t;
+                    var i;
+                    while(low < high){
+                        // 注意此处判断条件  “<=”
+                        for(m = arr[low];m <= arr[high] && low < high;high--){
+                        }
+                        if(low < high){
+                            t = arr[high];
+                            arr[high] = arr[low];
+                            arr[low] = t;
+                            i = high;
+                            low++;
+                        }
+                        for(m = arr[high];m >= arr[low] && low < high;low++){
+                        }
+                        if(low < high){
+                            t = arr[high];
+                            arr[high] = arr[low];
+                            arr[low] = t;
+                            i = low;
+                            high--;
+                        }
+                    }
+                    return i;
+                }
+                // 判断条件
+                if(low < high){
+                    p = partition(arr,low,high);
+                    this.quickSort(arr,low,p-1);
+                    this.quickSort(arr,p+1,high);
+                }
+            },
+            // 当一个数组左边有序，右边也有序，那合并这两个有序数组就完成了排序。如何让左右两边有序了？
+            // 用递归！这样递归下去，合并上来就是归并排序
+            mergeSort: function(arr){
+                var tem;
+                function merge(left,right){
+                    var ret = [];
+                    while(left.length > 0 && right.length > 0){
+                        if(left[0] > right[0]){
+                            ret.push(right.shift());
+                        }else{
+                            ret.push(left.shift());
+                        }
+                    }
+                    return ret.concat(left).concat(right);
+                }
+                if(arr.length == 1)
+                    return arr;
+                var len = arr.length,
+                        mid = Math.floor(len/2);
+
+                var left = arr.slice(0,mid),
+                        right = arr.slice(mid);
+                return merge(this.mergeSort(left),this.mergeSort(right));
+
+            },
+            // 先将整个待排元素序列分割成若干个子序列（由相隔某个“增量”的元素组成的）
+            // 分别进行直接插入排序，然后依次缩减增量再进行排序，待整个序列中的元素基
+            // 本有序（增量足够小）时，再对全体元素进行一次直接插入排序。由于希尔排序
+            // 是对相隔若干距离的数据进行直接插入排序，因此可以形象的称希尔排序为“跳着插”
+            shellSort: function(arr){
+                var len = arr.length,
+                        seg = Math.floor(len/2);
+                var r,temp;
+                var c;
+                while(seg > 0){
+                    for(r=seg;r<len;r++){
+                        temp = arr[r];
+                        c = r - seg;
+                        while(c >= 0){
+                            if(arr[c] > temp){
+                                arr[seg + c] = arr[c];
+                                arr[c] = temp;
+                            }
+                            if(c-seg < 0)
+                                break;
+                            temp = arr[c];
+                            c = c-seg;
+                        }
+                    }
+                    seg = Math.floor(seg/2);
+                }
+                return arr;
+            },
+            //  http://blog.csdn.net/morewindows/article/details/6709644
+            // 堆的插入就是——每次插入都是将新数据放在数组最后，而从这个新数据的
+            // 父结点到根结点必定是一个有序的数列，因此只要将这个新数据插入到这个有序数列中即可。
+
+            // 堆的删除就是——堆的删除就是将最后一个数据的值赋给根结点，然后再从根结点开始进行一
+            // 次从上向下的调整。调整时先在左右儿子结点中找最小的，如果父结点比这个最小的子结点
+            // 还小说明不需要调整了，反之将父结点和它交换后再考虑后面的结点。相当于从根结点开始
+            // 将一个数据在有序数列中进行“下沉”。
+
+            // 因此，堆的插入和删除非常类似直接插入排序，只不是在二叉树上进行插入过程。所以可以将
+            // 堆排序形容为“树上插”
+            heapSort: function(arr){
+                // 堆排序中使用的堆即二叉树，最小堆即根节点比左右子节点的值小。
+                // 首先构建堆的向下整理和向上整理的方法
+                // 其中，对堆进行删除指的是删除堆的根节点，然后将堆的末尾叶子节点放入根节点中，然后向下整理。
+
+                // 若一个节点在数组中的序列为i，则其父节点的数列为（i-1）/2,两个孩子节点为2i+1、2i+2
+                // 向下修正i节点
+                function fixDown(arr,i){
+                    var temp = arr[i],
+                            len = arr.length,
+                            j = 2 * i + 1;
+                    while(j < len){
+                        // 取最小的子节点值进行比较
+                        if(arr[j] > arr[j+1] && j+1 < len)
+                            j++;
+                        if(temp < arr[j])
+                            break;
+                        arr[i] = arr[j];
+                        i = j;
+                        j = 2 * i + 1;
+                    }
+                    arr[i] = temp;
+                }
+                // 构建堆
+                // 所有的叶子节点不用检测，检测非叶子节点的值，进行向下整理
+                function createHeap(arr){
+                    var len = arr.length,
+                            i = Math.floor((len-1)/2);
+                    for(;i>=0;i--){
+                        fixDown(arr,i);
+                    }
+                }
+
+                // 利用最小堆进行排序，即使用构建好的堆进行删除操作，根节点的值是最小值，
+                // 删除根节点后进行向下整理，再删除根节点即可.
+                createHeap(arr);
+                var ret = [],t;
+                for(;arr.length > 1;){
+                    t = arr[0];
+                    arr[0] = arr.pop();
+                    ret.push(t);
+                    fixDown(arr,0);
+                }
+                ret.push(arr[0])
+                return ret;
+            },
+            // 基数排序，是通过“分配”和“收集”过程来实现排序
+            // 只适应于正数之间的排列，负数不可以
+            // http://www.cnblogs.com/Braveliu/archive/2013/01/21/2870201.html
+            radixSort: function(arr,n){ // n位所有数字中最大数的位数
+                // 初始化10个桶
+                var bucket = [];
+                resetTheArray(bucket);
+
+                // 重置桶
+                function resetTheArray(arr){
+                    for(var i=0;i<10;i++){
+                        bucket[i] = [];
+                    }
+                }
+                // 从右获取第p位的数字
+                function getTheNumber(num,p){
+                    var t = 1;
+                    for(var i=0;i<p-1;i++)
+                        t *= 10;
+                    return Math.floor(num/t) % 10;
+                }
+
+                var bitNumber;
+                for(var i=1;i<=n;i++){
+                    resetTheArray(bucket);
+                    for(var j=0,len=arr.length;j<len;j++){
+                        bitNumber = getTheNumber(arr[j],i);
+                        bucket[bitNumber].push(arr[j]);
+                    }
+                    arr.length = 0;
+                    for(j=0;j<10;j++){
+                        arr = arr.concat(bucket[j]);
+                    }
+                }
+                return arr;
+            }
+        }
+       var s = new Sort();
+        var arr = [22,13,4,71,20,46,39];
+        var r = s.radixSort(arr,2);
+        console.log(r)
+    </script>
+</body>
+</html>
